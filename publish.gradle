@@ -1,0 +1,34 @@
+modifyPom {
+    project {
+        name 'textramode'
+        description 'Extra features for fonts in libGDX.'
+        url 'https://github.com/tommyettinger/textramode'
+        inceptionYear '2021'
+
+        scm {
+            url 'https://github.com/tommyettinger/textramode'
+            connection 'scm:https://tommyettinger@github.com/tommyettinger/textramode.git'
+            developerConnection 'scm:git://github.com/tommyettinger/textramode.git'
+        }
+
+        licenses {
+            license {
+                name 'Apache Public License'
+                url 'https://www.apache.org/licenses/LICENSE-2.0.html'
+                distribution 'repo'
+            }
+        }
+
+        developers {
+            developer {
+                id 'tommyettinger'
+                name 'Tommy Ettinger'
+                email 'tommy.ettinger@gmail.com'
+            }
+        }
+    }
+}
+
+nexusStaging {
+    packageGroup = 'com.github.tommyettinger'
+}
