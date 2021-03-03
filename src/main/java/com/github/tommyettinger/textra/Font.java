@@ -545,7 +545,7 @@ public class Font {
         if (tr == null) return 0f;
         float x0 = 0f, x1 = 0f, x2 = 0f, x3 = 0f;
         float y0 = 0f, y1 = 0f, y2 = 0f, y3 = 0f;
-        float color = NumberUtils.floatToIntColor(Integer.reverseBytes((int) (glyph >>> 32)));
+        float color = NumberUtils.intToFloatColor(Integer.reverseBytes((int) (glyph >>> 32)));
         final float xPx = 1f, xPx2 = 2f;
         float u, v, u2, v2;
         u = tr.getU();
