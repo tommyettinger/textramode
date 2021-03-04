@@ -422,7 +422,7 @@ public class Font {
         if(isMSDF) {
             if (batch.getShader() != shader) {
                 batch.setShader(shader);
-                shader.setUniformf("u_smoothing", 5f * msdfCrispness * (cellHeight / originalCellHeight + cellWidth / originalCellWidth));
+                shader.setUniformf("u_smoothing", 7f * msdfCrispness * Math.max(cellHeight / originalCellHeight, cellWidth / originalCellWidth));
             }
         }
         else {
