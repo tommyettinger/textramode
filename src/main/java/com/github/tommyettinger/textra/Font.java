@@ -704,7 +704,7 @@ public class Font {
                 vertices[17] = color;
                 vertices[18] = underU2;
                 vertices[19] = underV;
-                batch.draw(tex, vertices, 0, 20);
+                batch.draw(under.getTexture(), vertices, 0, 20);
             }
         }
         if ((glyph & STRIKETHROUGH) != 0L) {
@@ -739,7 +739,7 @@ public class Font {
                 vertices[17] = color;
                 vertices[18] = dashU2;
                 vertices[19] = dashV;
-                batch.draw(tex, vertices, 0, 20);
+                batch.draw(dash.getTexture(), vertices, 0, 20);
             }
         }
         return changedW;
