@@ -8,7 +8,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
-import com.badlogic.gdx.utils.Bits;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.LongArray;
 import com.badlogic.gdx.utils.NumberUtils;
@@ -66,7 +66,7 @@ public class Font {
 
     public IntMap<GlyphRegion> mapping;
     public GlyphRegion defaultValue;
-    public TextureRegion parentImage;
+    public Array<TextureRegion> parents;
     public boolean isMSDF;
     public boolean isMono;
     public float msdfCrispness = 1f;
@@ -274,7 +274,7 @@ public class Font {
         isMSDF = toCopy.isMSDF;
         isMono = toCopy.isMono;
         msdfCrispness = toCopy.msdfCrispness;
-        parentImage = toCopy.parentImage;
+        parents = new Array<>(toCopy.parents);
         cellWidth = toCopy.cellWidth;
         cellHeight = toCopy.cellHeight;
         scaleX = toCopy.scaleX;
@@ -293,20 +293,31 @@ public class Font {
             shader = toCopy.shader;
     }
 
+    public Font(String fntName, boolean isMSDF,
+                float xAdjust, float yAdjust, float widthAdjust, float heightAdjust) {
+        this.isMSDF = isMSDF;
+        if (isMSDF) {
+            shader = new ShaderProgram(vertexShader, msdfFragmentShader);
+            if (!shader.isCompiled())
+                Gdx.app.error("textramode", "Font shader failed to compile: " + shader.getLog());
+        }
+        loadFNT(fntName, xAdjust, yAdjust, widthAdjust, heightAdjust);
+    }
+
     public Font(String fntName, String textureName, boolean isMSDF,
                 float xAdjust, float yAdjust, float widthAdjust, float heightAdjust) {
         this.isMSDF = isMSDF;
         if (isMSDF) {
             shader = new ShaderProgram(vertexShader, msdfFragmentShader);
             if (!shader.isCompiled())
-                Gdx.app.error("squidglyph", "Font shader failed to compile: " + shader.getLog());
+                Gdx.app.error("textramode", "Font shader failed to compile: " + shader.getLog());
         }
         FileHandle textureHandle;
         if ((textureHandle = Gdx.files.internal(textureName)).exists()
                 || (textureHandle = Gdx.files.classpath(textureName)).exists()) {
-            parentImage = new TextureRegion(new Texture(textureHandle));
+            parents = Array.with(new TextureRegion(new Texture(textureHandle)));
             if (isMSDF) {
-                parentImage.getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+                parents.first().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
             }
         } else {
             throw new RuntimeException("Missing texture file: " + textureName);
@@ -314,17 +325,34 @@ public class Font {
         loadFNT(fntName, xAdjust, yAdjust, widthAdjust, heightAdjust);
     }
 
-    public Font(String fntName, TextureRegion parentImage, boolean isMSDF,
+    public Font(String fntName, TextureRegion parent, boolean isMSDF,
                 float xAdjust, float yAdjust, float widthAdjust, float heightAdjust) {
         this.isMSDF = isMSDF;
         if (isMSDF) {
             shader = new ShaderProgram(vertexShader, msdfFragmentShader);
             if (!shader.isCompiled())
-                Gdx.app.error("squidglyph", "Font shader failed to compile: " + shader.getLog());
+                Gdx.app.error("textramode", "Font shader failed to compile: " + shader.getLog());
         }
-        this.parentImage = parentImage;
+        this.parents = Array.with(parent);
         if (isMSDF)
-            parentImage.getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+            parent.getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+        loadFNT(fntName, xAdjust, yAdjust, widthAdjust, heightAdjust);
+    }
+
+    public Font(String fntName, Array<TextureRegion> parents, boolean isMSDF,
+                float xAdjust, float yAdjust, float widthAdjust, float heightAdjust) {
+        this.isMSDF = isMSDF;
+        if (isMSDF) {
+            shader = new ShaderProgram(vertexShader, msdfFragmentShader);
+            if (!shader.isCompiled())
+                Gdx.app.error("textramode", "Font shader failed to compile: " + shader.getLog());
+        }
+        this.parents = parents;
+        if (isMSDF && parents != null)
+        {
+            for(TextureRegion parent : parents)
+                parent.getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+        }
         loadFNT(fntName, xAdjust, yAdjust, widthAdjust, heightAdjust);
     }
 
@@ -348,19 +376,39 @@ public class Font {
         else {
             throw new RuntimeException("Missing font file: " + fntName);
         }
-        int idx = indexAfter(fnt, "\nchars count=", 0);
-        int size = intFromDec(fnt, idx, idx = indexAfter(fnt, "\nchar id=", idx));
+        int idx = indexAfter(fnt, " pages=", 0);
+        int pages = intFromDec(fnt, idx, idx = indexAfter(fnt, "\npage id=", idx));
+        if(parents == null || parents.size < pages) {
+            if(parents == null) parents = new Array<>(true, pages, TextureRegion.class);
+            else parents.clear();
+            FileHandle textureHandle;
+            for (int i = 0; i < pages; i++) {
+                String textureName = fnt.substring(idx = indexAfter(fnt, "file=\"", idx), idx = fnt.indexOf('"', idx));
+                if ((textureHandle = Gdx.files.internal(textureName)).exists()
+                        || (textureHandle = Gdx.files.classpath(textureName)).exists()) {
+                    parents.add(new TextureRegion(new Texture(textureHandle)));
+                    if (isMSDF) {
+                        parents.peek().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+                    }
+                } else {
+                    throw new RuntimeException("Missing texture file: " + textureName);
+                }
+
+            }
+        }
+        int size = intFromDec(fnt, idx = indexAfter(fnt, "\nchars count=", idx), idx = indexAfter(fnt, "\nchar id=", idx));
         mapping = new IntMap<>(size);
         float minWidth = Float.MAX_VALUE;
         for (int i = 0; i < size; i++) {
-            int c = intFromDec(fnt, idx, idx = indexAfter(fnt, " x=", idx));
-            int x = intFromDec(fnt, idx, idx = indexAfter(fnt, " y=", idx));
-            int y = intFromDec(fnt, idx, idx = indexAfter(fnt, " width=", idx));
-            int w = intFromDec(fnt, idx, idx = indexAfter(fnt, " height=", idx));
-            int h = intFromDec(fnt, idx, idx = indexAfter(fnt, " xoffset=", idx));
+            int c  = intFromDec(fnt, idx, idx = indexAfter(fnt, " x=", idx));
+            int x  = intFromDec(fnt, idx, idx = indexAfter(fnt, " y=", idx));
+            int y  = intFromDec(fnt, idx, idx = indexAfter(fnt, " width=", idx));
+            int w  = intFromDec(fnt, idx, idx = indexAfter(fnt, " height=", idx));
+            int h  = intFromDec(fnt, idx, idx = indexAfter(fnt, " xoffset=", idx));
             int xo = intFromDec(fnt, idx, idx = indexAfter(fnt, " yoffset=", idx));
             int yo = intFromDec(fnt, idx, idx = indexAfter(fnt, " xadvance=", idx));
-            int a = intFromDec(fnt, idx, idx = indexAfter(fnt, "\nchar id=", idx));
+            int a  = intFromDec(fnt, idx, idx = indexAfter(fnt, " page=", idx));
+            int p  = intFromDec(fnt, idx, idx = indexAfter(fnt, "\nchar id=", idx));
 
 //            System.out.printf("'%s' (%5d): width=%d height=%d xoffset=%d yoffset=%d xadvance=%d\n", (char)c, c, w, h, xo, yo, a);
             x += xAdjust;
@@ -370,7 +418,7 @@ public class Font {
             minWidth = Math.min(minWidth, a);
             cellWidth = Math.max(a, cellWidth);
             cellHeight = Math.max(h, cellHeight);
-            GlyphRegion ar = new GlyphRegion(parentImage, x, y, a, h);
+            GlyphRegion ar = new GlyphRegion(parents.get(p), x, y, a, h);
             ar.offsetX = xo;
             ar.offsetY = yo;
             mapping.put(c, ar);
@@ -543,6 +591,7 @@ public class Font {
     public float drawGlyph(Batch batch, long glyph, float x, float y) {
         GlyphRegion tr = mapping.get((char) glyph);
         if (tr == null) return 0f;
+        Texture tex = tr.getTexture();
         float x0 = 0f, x1 = 0f, x2 = 0f, x3 = 0f;
         float y0 = 0f, y1 = 0f, y2 = 0f, y3 = 0f;
         float color = NumberUtils.intToFloatColor(Integer.reverseBytes((int) (glyph >>> 32)));
@@ -611,18 +660,18 @@ public class Font {
         vertices[17] = color;
         vertices[18] = u2;
         vertices[19] = v;
-        batch.draw(parentImage.getTexture(), vertices, 0, 20);
+        batch.draw(tex, vertices, 0, 20);
         if ((glyph & BOLD) != 0L) {
             vertices[0] += xPx;
             vertices[5] += xPx;
             vertices[10] += xPx;
             vertices[15] += xPx;
-            batch.draw(parentImage.getTexture(), vertices, 0, 20);
+            batch.draw(tex, vertices, 0, 20);
             vertices[0] -= xPx2;
             vertices[5] -= xPx2;
             vertices[10] -= xPx2;
             vertices[15] -= xPx2;
-            batch.draw(parentImage.getTexture(), vertices, 0, 20);
+            batch.draw(tex, vertices, 0, 20);
         }
         if ((glyph & UNDERLINE) != 0L) {
             final GlyphRegion under = mapping.get('_');
@@ -655,7 +704,7 @@ public class Font {
                 vertices[17] = color;
                 vertices[18] = underU2;
                 vertices[19] = underV;
-                batch.draw(parentImage.getTexture(), vertices, 0, 20);
+                batch.draw(tex, vertices, 0, 20);
             }
         }
         if ((glyph & STRIKETHROUGH) != 0L) {
@@ -690,7 +739,7 @@ public class Font {
                 vertices[17] = color;
                 vertices[18] = dashU2;
                 vertices[19] = dashV;
-                batch.draw(parentImage.getTexture(), vertices, 0, 20);
+                batch.draw(tex, vertices, 0, 20);
             }
         }
         return changedW;
