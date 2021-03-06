@@ -34,7 +34,7 @@ public class FontTest extends ApplicationAdapter {
 //        font = new Font("Cozette.fnt", "Cozette.png", false).scale(2f, 2f);
 //        font = new Font("Iosevka-Slab-msdf.fnt", "Iosevka-Slab-msdf.png", true, 3f, 6, -4f, -7).scale(0.75f, 0.75f);
 //        font = new Font("Inconsolata-LGC-Custom-msdf.fnt", "Inconsolata-LGC-Custom-msdf.png", true, 5f, 1f, -10f, -8f).scaleTo(16f, 36f);
-        font = new Font("Gentium.fnt", false, -1f, 0f, -4f, 0f).scale(0.5f, 0.5f);
+        font = new Font("Gentium.fnt", false, -1f, 0f, -4.5f, 0f).scale(0.5f, 0.5f);
         for(TextureRegion parent : font.parents){
             parent.getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         }
