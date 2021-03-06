@@ -604,10 +604,10 @@ public class Font {
         float w = tr.getRegionWidth() * scaleX, changedW = w, h = tr.getRegionHeight() * scaleY;
         float yt = y + cellHeight - h - tr.offsetY * scaleY;
         if ((glyph & OBLIQUE) != 0L) {
-            x0 += cellHeight * 0.2f;
-            x1 -= cellHeight * 0.2f;
-            x2 -= cellHeight * 0.2f;
-            x3 += cellHeight * 0.2f;
+            x0 += h * 0.2f;
+            x1 -= h * 0.2f;
+            x2 -= h * 0.2f;
+            x3 += h * 0.2f;
         }
         final long script = (glyph & SUPERSCRIPT);
         if (script == SUPERSCRIPT) {
