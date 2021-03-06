@@ -8,10 +8,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
-import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.IntMap;
-import com.badlogic.gdx.utils.LongArray;
-import com.badlogic.gdx.utils.NumberUtils;
+import com.badlogic.gdx.utils.*;
 
 import java.util.BitSet;
 
@@ -69,6 +66,7 @@ public class Font {
     public Array<TextureRegion> parents;
     public boolean isMSDF;
     public boolean isMono;
+    public IntIntMap kerning;
     public float msdfCrispness = 1f;
     public float cellWidth = 1f;
     public float cellHeight = 1f;
@@ -365,21 +363,19 @@ public class Font {
      * @param widthAdjust added to the glyph width for each glyph in the font
      * @param heightAdjust added to the glyph height for each glyph in the font
      */
-    protected void loadFNT(String fntName, float xAdjust, float yAdjust, float widthAdjust, float heightAdjust)
-    {
+    protected void loadFNT(String fntName, float xAdjust, float yAdjust, float widthAdjust, float heightAdjust) {
         FileHandle fntHandle;
         String fnt;
-        if((fntHandle = Gdx.files.internal(fntName)).exists()
+        if ((fntHandle = Gdx.files.internal(fntName)).exists()
                 || (fntHandle = Gdx.files.classpath(fntName)).exists()) {
             fnt = fntHandle.readString("UTF8");
-        }
-        else {
+        } else {
             throw new RuntimeException("Missing font file: " + fntName);
         }
         int idx = indexAfter(fnt, " pages=", 0);
         int pages = intFromDec(fnt, idx, idx = indexAfter(fnt, "\npage id=", idx));
-        if(parents == null || parents.size < pages) {
-            if(parents == null) parents = new Array<>(true, pages, TextureRegion.class);
+        if (parents == null || parents.size < pages) {
+            if (parents == null) parents = new Array<>(true, pages, TextureRegion.class);
             else parents.clear();
             FileHandle textureHandle;
             for (int i = 0; i < pages; i++) {
@@ -400,15 +396,15 @@ public class Font {
         mapping = new IntMap<>(size);
         float minWidth = Float.MAX_VALUE;
         for (int i = 0; i < size; i++) {
-            int c  = intFromDec(fnt, idx, idx = indexAfter(fnt, " x=", idx));
-            int x  = intFromDec(fnt, idx, idx = indexAfter(fnt, " y=", idx));
-            int y  = intFromDec(fnt, idx, idx = indexAfter(fnt, " width=", idx));
-            int w  = intFromDec(fnt, idx, idx = indexAfter(fnt, " height=", idx));
-            int h  = intFromDec(fnt, idx, idx = indexAfter(fnt, " xoffset=", idx));
+            int c = intFromDec(fnt, idx, idx = indexAfter(fnt, " x=", idx));
+            int x = intFromDec(fnt, idx, idx = indexAfter(fnt, " y=", idx));
+            int y = intFromDec(fnt, idx, idx = indexAfter(fnt, " width=", idx));
+            int w = intFromDec(fnt, idx, idx = indexAfter(fnt, " height=", idx));
+            int h = intFromDec(fnt, idx, idx = indexAfter(fnt, " xoffset=", idx));
             int xo = intFromDec(fnt, idx, idx = indexAfter(fnt, " yoffset=", idx));
             int yo = intFromDec(fnt, idx, idx = indexAfter(fnt, " xadvance=", idx));
-            int a  = intFromDec(fnt, idx, idx = indexAfter(fnt, " page=", idx));
-            int p  = intFromDec(fnt, idx, idx = indexAfter(fnt, "\nchar id=", idx));
+            int a = intFromDec(fnt, idx, idx = indexAfter(fnt, " page=", idx));
+            int p = intFromDec(fnt, idx, idx = indexAfter(fnt, "\nchar id=", idx));
 
 //            System.out.printf("'%s' (%5d): width=%d height=%d xoffset=%d yoffset=%d xadvance=%d\n", (char)c, c, w, h, xo, yo, a);
             x += xAdjust;
@@ -423,6 +419,17 @@ public class Font {
             ar.offsetY = yo;
             mapping.put(c, ar);
         }
+        idx = indexAfter(fnt, "\nkernings count=", 0);
+        if(idx >= 0){
+            int kernings = intFromDec(fnt, idx, idx = indexAfter(fnt, "\nkerning first=", idx));
+            kerning = new IntIntMap(kernings);
+            for (int i = 0; i < kernings; i++) {
+                int first = intFromDec(fnt, idx, idx = indexAfter(fnt, " second=", idx));
+                int second = intFromDec(fnt, idx, idx = indexAfter(fnt, " amount=", idx));
+                int amount = intFromDec(fnt, idx, idx = indexAfter(fnt, "\nkerning first=", idx));
+                kerning.put(first << 16 | second, amount);
+            }
+        }
         defaultValue = mapping.get(' ', mapping.get(0));
         originalCellWidth = cellWidth;
         originalCellHeight = cellHeight;
@@ -430,6 +437,16 @@ public class Font {
     }
 
     //// usage section
+
+    /**
+     * Assembles two chars into a kerning pair that can be looked up as a key in {@link #kerning}.
+     * @param first the first char
+     * @param second the second char
+     * @return a kerning pair that can be looked up in {@link #kerning}
+     */
+    public int kerningPair(char first, char second) {
+        return first << 16 | (second & 0xFFFF);
+    }
 
     /**
      * Scales the font by the given horizontal and vertical multipliers.
@@ -543,8 +560,19 @@ public class Font {
         tempGlyphs.clear();
         markup(text, tempGlyphs);
         final int n = tempGlyphs.size;
-        for (int i = 0; i < n; i++) {
-            x += drawGlyph(batch, tempGlyphs.get(i), x, y);
+        if(kerning != null) {
+            int kern = -1, amt = 0;
+            long glyph;
+            for (int i = 0; i < n; i++) {
+                kern = kern << 16 | (int) ((glyph = tempGlyphs.get(i)) & 0xFFFF);
+                amt = kerning.get(kern, 0);
+                x += drawGlyph(batch, glyph, x + amt, y) + amt;
+            }
+        }
+        else {
+            for (int i = 0; i < n; i++) {
+                x += drawGlyph(batch, tempGlyphs.get(i), x, y);
+            }
         }
         return n;
     }
@@ -573,8 +601,19 @@ public class Font {
      */
     public int drawGlyphs(Batch batch, LongArray glyphs, int offset, int length, float x, float y) {
         int drawn = 0;
-        for (int i = offset, n = glyphs.size; i < n && drawn < length; i++, drawn++) {
-            x += drawGlyph(batch, glyphs.get(i), x, y);
+        if(kerning != null) {
+            int kern = -1, amt = 0;
+            long glyph;
+            for (int i = offset, n = glyphs.size; i < n && drawn < length; i++, drawn++) {
+                kern = kern << 16 | (int) ((glyph = glyphs.get(i)) & 0xFFFF);
+                amt = kerning.get(kern, 0);
+                x += drawGlyph(batch, glyph, x + amt, y) + amt;
+            }
+        }
+        else {
+            for (int i = offset, n = glyphs.size; i < n && drawn < length; i++, drawn++) {
+                x += drawGlyph(batch, glyphs.get(i), x, y);
+            }
         }
         return drawn;
     }

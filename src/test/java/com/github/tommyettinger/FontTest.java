@@ -43,7 +43,7 @@ public class FontTest extends ApplicationAdapter {
 
         font.markup("[#22BB22FF]Hello, [~]World[~]Universe[.]$[=]$[^]$[^]!", glyphs[0] = new LongArray());
 //        font.markup("[#"+ DigitTools.hex(color) +"]Hello, [~]World[~]Universe[.]♪[=]♪[^]♪[^]!", glyphs[0] = new LongList());
-        font.markup("The [RED]MAW[] of the [/][CYAN]wendigo[] [*]appears[*]!", glyphs[1] = new LongArray());
+        font.markup("The [RED]MAW[] of the [/][CYAN]wendigo[/] (wendigo)[] [*]appears[*]!", glyphs[1] = new LongArray());
         font.markup("The [_][GRAY]BLADE[] of [*][/][YELLOW]KINGS[] strikes!", glyphs[2] = new LongArray());
         font.markup("[_][;]Each cap, [,]All lower, [!]Caps lock[], [?]Unknown[]?", glyphs[3] = new LongArray());
         font.markup("[GOLD]φ[] = (1 + 5[^]0.5[^]) * 0.5", glyphs[4] = new LongArray());
