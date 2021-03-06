@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Colors;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.utils.*;
@@ -354,6 +355,62 @@ public class Font {
         loadFNT(fntName, xAdjust, yAdjust, widthAdjust, heightAdjust);
     }
 
+    public Font(BitmapFont bmFont, boolean isMSDF,
+                float xAdjust, float yAdjust, float widthAdjust, float heightAdjust) {
+        this.isMSDF = isMSDF;
+        if (isMSDF) {
+            shader = new ShaderProgram(vertexShader, msdfFragmentShader);
+            if (!shader.isCompiled())
+                Gdx.app.error("textramode", "Font shader failed to compile: " + shader.getLog());
+        }
+        this.parents = bmFont.getRegions();
+        if (isMSDF && parents != null)
+        {
+            for(TextureRegion parent : parents)
+                parent.getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+        }
+        BitmapFont.BitmapFontData data = bmFont.getData();
+        mapping = new IntMap<>(128);
+        int minWidth = Integer.MAX_VALUE;
+        for (BitmapFont.Glyph[] page : data.glyphs) {
+            if (page == null) continue;
+            for (BitmapFont.Glyph glyph : page) {
+                if (glyph != null) {
+                    int x = glyph.srcX, y = glyph.srcY, a = glyph.xadvance, h = glyph.height;
+                    x += xAdjust;
+                    y += yAdjust;
+                    a += widthAdjust;
+                    h += heightAdjust;
+                    minWidth = Math.min(minWidth, a);
+                    cellWidth = Math.max(a, cellWidth);
+                    cellHeight = Math.max(h, cellHeight);
+                    GlyphRegion gr = new GlyphRegion(bmFont.getRegion(glyph.page), x, y, a, h);
+                    gr.offsetX = glyph.xoffset;
+                    gr.offsetY = glyph.yoffset;
+                    mapping.put(glyph.id & 0xFFFF, gr);
+                    if(glyph.kerning != null){
+                        if(kerning == null) kerning = new IntIntMap(128);
+                        for (int b = 0; b < glyph.kerning.length; b++) {
+                            byte[] kern = glyph.kerning[b];
+                            if(kern != null) {
+                                int k;
+                                for (int i = 0; i < 512; i++) {
+                                    k = kern[i];
+                                    if (k != 0) {
+                                        kerning.put(glyph.id << 16 | (b << 9 | i), k);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        defaultValue = mapping.get(' ', mapping.get(0));
+        originalCellWidth = cellWidth;
+        originalCellHeight = cellHeight;
+        isMono = minWidth == cellWidth && kerning == null;
+    }
     /**
      * The gritty parsing code that pulls relevant info from a FNT file and uses it to assemble the
      * many {@code TextureRegion}s this has for each glyph.
@@ -394,7 +451,7 @@ public class Font {
         }
         int size = intFromDec(fnt, idx = indexAfter(fnt, "\nchars count=", idx), idx = indexAfter(fnt, "\nchar id=", idx));
         mapping = new IntMap<>(size);
-        float minWidth = Float.MAX_VALUE;
+        int minWidth = Integer.MAX_VALUE;
         for (int i = 0; i < size; i++) {
             int c = intFromDec(fnt, idx, idx = indexAfter(fnt, " x=", idx));
             int x = intFromDec(fnt, idx, idx = indexAfter(fnt, " y=", idx));
@@ -414,10 +471,10 @@ public class Font {
             minWidth = Math.min(minWidth, a);
             cellWidth = Math.max(a, cellWidth);
             cellHeight = Math.max(h, cellHeight);
-            GlyphRegion ar = new GlyphRegion(parents.get(p), x, y, a, h);
-            ar.offsetX = xo;
-            ar.offsetY = yo;
-            mapping.put(c, ar);
+            GlyphRegion gr = new GlyphRegion(parents.get(p), x, y, a, h);
+            gr.offsetX = xo;
+            gr.offsetY = yo;
+            mapping.put(c, gr);
         }
         idx = indexAfter(fnt, "\nkernings count=", 0);
         if(idx >= 0){
@@ -433,7 +490,7 @@ public class Font {
         defaultValue = mapping.get(' ', mapping.get(0));
         originalCellWidth = cellWidth;
         originalCellHeight = cellHeight;
-        isMono = minWidth == cellWidth;
+        isMono = minWidth == cellWidth && kerning == null;
     }
 
     //// usage section
