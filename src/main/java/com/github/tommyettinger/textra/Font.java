@@ -611,28 +611,32 @@ public class Font {
         }
         final long script = (glyph & SUPERSCRIPT);
         if (script == SUPERSCRIPT) {
-            x2 -= w * 0.5f;
-            x3 -= w * 0.5f;
-            y1 += h * 0.5f;
-            y2 += h * 0.5f;
+            w *= 0.5f;
+            h *= 0.5f;
+            y1 += cellHeight * 0.375f;
+            y2 += cellHeight * 0.375f;
+            y0 += cellHeight * 0.375f;
+            y3 += cellHeight * 0.375f;
             if(!isMono)
                 changedW *= 0.5f;
         }
         else if (script == SUBSCRIPT) {
-            x2 -= w * 0.5f;
-            x3 -= w * 0.5f;
-            y0 -= h * 0.5f;
-            y3 -= h * 0.5f;
+            w *= 0.5f;
+            h *= 0.5f;
+            y1 -= cellHeight * 0.125f;
+            y2 -= cellHeight * 0.125f;
+            y0 -= cellHeight * 0.125f;
+            y3 -= cellHeight * 0.125f;
             if(!isMono)
                 changedW *= 0.5f;
         }
         else if(script == MIDSCRIPT) {
-            x2 -= w * 0.5f;
-            x3 -= w * 0.5f;
-            y0 -= h * 0.25f;
-            y1 += h * 0.25f;
-            y2 += h * 0.25f;
-            y3 -= h * 0.25f;
+            w *= 0.5f;
+            h *= 0.5f;
+            y0 += cellHeight * 0.125f;
+            y1 += cellHeight * 0.125f;
+            y2 += cellHeight * 0.125f;
+            y3 += cellHeight * 0.125f;
             if(!isMono)
                 changedW *= 0.5f;
         }

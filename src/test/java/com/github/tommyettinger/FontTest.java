@@ -16,7 +16,7 @@ public class FontTest extends ApplicationAdapter {
 
     Font font;
     SpriteBatch batch;
-    LongArray[] glyphs = new LongArray[5];
+    LongArray[] glyphs = new LongArray[6];
 
     public static void main(String[] args){
         Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
@@ -46,8 +46,9 @@ public class FontTest extends ApplicationAdapter {
         font.markup("The [RED]MAW[] of the [/][CYAN]wendigo[] [*]appears[*]!", glyphs[1] = new LongArray());
         font.markup("The [_][GRAY]BLADE[] of [*][/][YELLOW]KINGS[] strikes!", glyphs[2] = new LongArray());
         font.markup("[_][;]Each cap, [,]All lower, [!]Caps lock[], [?]Unknown[]?", glyphs[3] = new LongArray());
-        font.markup("Music, or muzak? -[.]-[=]-[^]-[=]-[.]-[]_[.]_[=]_[^]_[=]_[.]_[]", glyphs[4] = new LongArray());
-//        font.markup("Music, or muzak? [.]♪[=]♪[^]♪[=]♪[.]♪[]", glyphs[4] = new LongArray());
+        font.markup("[GOLD]φ[] = (1 + 5[^]0.5[^]) * 0.5", glyphs[4] = new LongArray());
+        font.markup("Music, or muzak? [.]♭[=]♭[^]♭[=]♭[.]♭[]", glyphs[5] = new LongArray());
+//        font.markup("Music, or muzak? [.]♪[=]♪[^]♪[=]♪[.]♪[]", glyphs[5] = new LongArray());
     }
 
     @Override
