@@ -13,7 +13,7 @@ import com.badlogic.gdx.utils.*;
 
 import java.util.BitSet;
 
-public class Font {
+public class TextraFont {
     /**
      * Describes the region of a glyph in a larger TextureRegion, carrying a little more info about the offsets that
      * apply to where the glyph is rendered.
@@ -265,11 +265,11 @@ public class Font {
     }
 
     //// constructor section
-    public Font(String fntName, String textureName, boolean isMSDF){
+    public TextraFont(String fntName, String textureName, boolean isMSDF){
         this(fntName, textureName, isMSDF, 0f, 0f, 0f, 0f);
     }
 
-    public Font(Font toCopy){
+    public TextraFont(TextraFont toCopy){
         isMSDF = toCopy.isMSDF;
         isMono = toCopy.isMono;
         msdfCrispness = toCopy.msdfCrispness;
@@ -292,24 +292,24 @@ public class Font {
             shader = toCopy.shader;
     }
 
-    public Font(String fntName, boolean isMSDF,
-                float xAdjust, float yAdjust, float widthAdjust, float heightAdjust) {
+    public TextraFont(String fntName, boolean isMSDF,
+                      float xAdjust, float yAdjust, float widthAdjust, float heightAdjust) {
         this.isMSDF = isMSDF;
         if (isMSDF) {
             shader = new ShaderProgram(vertexShader, msdfFragmentShader);
             if (!shader.isCompiled())
-                Gdx.app.error("textramode", "Font shader failed to compile: " + shader.getLog());
+                Gdx.app.error("textramode", "MSDF shader failed to compile: " + shader.getLog());
         }
         loadFNT(fntName, xAdjust, yAdjust, widthAdjust, heightAdjust);
     }
 
-    public Font(String fntName, String textureName, boolean isMSDF,
-                float xAdjust, float yAdjust, float widthAdjust, float heightAdjust) {
+    public TextraFont(String fntName, String textureName, boolean isMSDF,
+                      float xAdjust, float yAdjust, float widthAdjust, float heightAdjust) {
         this.isMSDF = isMSDF;
         if (isMSDF) {
             shader = new ShaderProgram(vertexShader, msdfFragmentShader);
             if (!shader.isCompiled())
-                Gdx.app.error("textramode", "Font shader failed to compile: " + shader.getLog());
+                Gdx.app.error("textramode", "MSDF shader failed to compile: " + shader.getLog());
         }
         FileHandle textureHandle;
         if ((textureHandle = Gdx.files.internal(textureName)).exists()
@@ -324,13 +324,13 @@ public class Font {
         loadFNT(fntName, xAdjust, yAdjust, widthAdjust, heightAdjust);
     }
 
-    public Font(String fntName, TextureRegion parent, boolean isMSDF,
-                float xAdjust, float yAdjust, float widthAdjust, float heightAdjust) {
+    public TextraFont(String fntName, TextureRegion parent, boolean isMSDF,
+                      float xAdjust, float yAdjust, float widthAdjust, float heightAdjust) {
         this.isMSDF = isMSDF;
         if (isMSDF) {
             shader = new ShaderProgram(vertexShader, msdfFragmentShader);
             if (!shader.isCompiled())
-                Gdx.app.error("textramode", "Font shader failed to compile: " + shader.getLog());
+                Gdx.app.error("textramode", "MSDF shader failed to compile: " + shader.getLog());
         }
         this.parents = Array.with(parent);
         if (isMSDF)
@@ -338,13 +338,13 @@ public class Font {
         loadFNT(fntName, xAdjust, yAdjust, widthAdjust, heightAdjust);
     }
 
-    public Font(String fntName, Array<TextureRegion> parents, boolean isMSDF,
-                float xAdjust, float yAdjust, float widthAdjust, float heightAdjust) {
+    public TextraFont(String fntName, Array<TextureRegion> parents, boolean isMSDF,
+                      float xAdjust, float yAdjust, float widthAdjust, float heightAdjust) {
         this.isMSDF = isMSDF;
         if (isMSDF) {
             shader = new ShaderProgram(vertexShader, msdfFragmentShader);
             if (!shader.isCompiled())
-                Gdx.app.error("textramode", "Font shader failed to compile: " + shader.getLog());
+                Gdx.app.error("textramode", "MSDF shader failed to compile: " + shader.getLog());
         }
         this.parents = parents;
         if (isMSDF && parents != null)
@@ -355,13 +355,13 @@ public class Font {
         loadFNT(fntName, xAdjust, yAdjust, widthAdjust, heightAdjust);
     }
 
-    public Font(BitmapFont bmFont, boolean isMSDF,
-                float xAdjust, float yAdjust, float widthAdjust, float heightAdjust) {
+    public TextraFont(BitmapFont bmFont, boolean isMSDF,
+                      float xAdjust, float yAdjust, float widthAdjust, float heightAdjust) {
         this.isMSDF = isMSDF;
         if (isMSDF) {
             shader = new ShaderProgram(vertexShader, msdfFragmentShader);
             if (!shader.isCompiled())
-                Gdx.app.error("textramode", "Font shader failed to compile: " + shader.getLog());
+                Gdx.app.error("textramode", "MSDF shader failed to compile: " + shader.getLog());
         }
         this.parents = bmFont.getRegions();
         if (isMSDF && parents != null)
@@ -388,7 +388,7 @@ public class Font {
                     gr.offsetX = glyph.xoffset;
                     gr.offsetY = glyph.yoffset;
                     mapping.put(glyph.id & 0xFFFF, gr);
-                    if(glyph.kerning != null){
+                    if(glyph.kerning != null) {
                         if(kerning == null) kerning = new IntIntMap(128);
                         for (int b = 0; b < glyph.kerning.length; b++) {
                             byte[] kern = glyph.kerning[b];
@@ -466,7 +466,7 @@ public class Font {
 //            System.out.printf("'%s' (%5d): width=%d height=%d xoffset=%d yoffset=%d xadvance=%d\n", (char)c, c, w, h, xo, yo, a);
             x += xAdjust;
             y += yAdjust;
-            a += widthAdjust;
+            a += widthAdjust - xo;
             h += heightAdjust;
             minWidth = Math.min(minWidth, a);
             cellWidth = Math.max(a, cellWidth);
@@ -509,9 +509,9 @@ public class Font {
      * Scales the font by the given horizontal and vertical multipliers.
      * @param horizontal how much to multiply the width of each glyph by
      * @param vertical how much to multiply the height of each glyph by
-     * @return this Font, for chaining
+     * @return this TextraFont, for chaining
      */
-    public Font scale(float horizontal, float vertical) {
+    public TextraFont scale(float horizontal, float vertical) {
         scaleX *= horizontal;
         scaleY *= vertical;
         cellWidth *= horizontal;
@@ -523,9 +523,9 @@ public class Font {
      * Scales the font so it will have the given width and height.
      * @param width the target width of the font, in world units
      * @param height the target height of the font, in world units
-     * @return this Font, for chaining
+     * @return this TextraFont, for chaining
      */
-    public Font scaleTo(float width, float height) {
+    public TextraFont scaleTo(float width, float height) {
         scaleX = width / originalCellWidth;
         scaleY = height / originalCellHeight;
         cellWidth  = width;
@@ -536,7 +536,7 @@ public class Font {
     /**
      * Must be called before drawing anything with an MSDF font; does not need to be called for other fonts unless you
      * are mixing them with MSDF fonts or other shaders. This also resets the Batch color to white, in case it had been
-     * left with a different setting before. If this Font is not an MSDF font, then this resets batch's shader to the
+     * left with a different setting before. If this TextraFont is not an MSDF font, then this resets batch's shader to the
      * default (using {@code batch.setShader(null)}).
      * @param batch the Batch to instruct to use the appropriate shader for this font; should usually be a SpriteBatch
      */
@@ -643,6 +643,7 @@ public class Font {
      * @return the number of glyphs drawn
      */
     public int drawGlyphs(Batch batch, LongArray glyphs, float x, float y) {
+        if(glyphs == null) return 0;
         return drawGlyphs(batch, glyphs, 0, glyphs.size, x, y);
     }
     /**
@@ -659,11 +660,12 @@ public class Font {
     public int drawGlyphs(Batch batch, LongArray glyphs, int offset, int length, float x, float y) {
         int drawn = 0;
         if(kerning != null) {
-            int kern = -1, amt = 0;
+            int kern = -1;
+            float amt = 0;
             long glyph;
             for (int i = offset, n = glyphs.size; i < n && drawn < length; i++, drawn++) {
                 kern = kern << 16 | (int) ((glyph = glyphs.get(i)) & 0xFFFF);
-                amt = kerning.get(kern, 0);
+                amt = kerning.get(kern, 0) * scaleX;
                 x += drawGlyph(batch, glyph, x + amt, y) + amt;
             }
         }
@@ -698,6 +700,10 @@ public class Font {
         u2 = tr.getU2();
         v2 = tr.getV2();
         float w = tr.getRegionWidth() * scaleX, changedW = w, h = tr.getRegionHeight() * scaleY;
+        if(!isMono) {
+            x += tr.offsetX * scaleX;
+            changedW += tr.offsetX * scaleX;
+        }
         float yt = y + cellHeight - h - tr.offsetY * scaleY;
         if ((glyph & OBLIQUE) != 0L) {
             x0 += h * 0.2f;
@@ -781,25 +787,25 @@ public class Font {
                         underU2 = under.getU2() - (under.getU2() - under.getU()) * 0.375f,
                         underV2 = under.getV2(),
                         hu = under.getRegionHeight() * scaleY, yu = y + cellHeight - hu - under.offsetY * scaleY;
-                vertices[0] = x;
+                vertices[0] = x - xPx;
                 vertices[1] = yu + hu;
                 vertices[2] = color;
                 vertices[3] = underU;
                 vertices[4] = underV;
 
-                vertices[5] = x;
+                vertices[5] = x - xPx;
                 vertices[6] = yu;
                 vertices[7] = color;
                 vertices[8] = underU;
                 vertices[9] = underV2;
 
-                vertices[10] = x + w;
+                vertices[10] = x + w + xPx;
                 vertices[11] = yu;
                 vertices[12] = color;
                 vertices[13] = underU2;
                 vertices[14] = underV2;
 
-                vertices[15] = x + w;
+                vertices[15] = x + w + xPx;
                 vertices[16] = yu + hu;
                 vertices[17] = color;
                 vertices[18] = underU2;
@@ -816,25 +822,25 @@ public class Font {
                         dashV2 = dash.getV2(),
                         hd = dash.getRegionHeight() * scaleY, yd = y + cellHeight - hd - dash.offsetY * scaleY;
 
-                vertices[0] = x;
+                vertices[0] = x - xPx;
                 vertices[1] = yd + hd;
                 vertices[2] = color;
                 vertices[3] = dashU;
                 vertices[4] = dashV;
 
-                vertices[5] = x;
+                vertices[5] = x - xPx;
                 vertices[6] = yd;
                 vertices[7] = color;
                 vertices[8] = dashU;
                 vertices[9] = dashV2;
 
-                vertices[10] = x + w;
+                vertices[10] = x + w + xPx;
                 vertices[11] = yd;
                 vertices[12] = color;
                 vertices[13] = dashU2;
                 vertices[14] = dashV2;
 
-                vertices[15] = x + w;
+                vertices[15] = x + w + xPx;
                 vertices[16] = yd + hd;
                 vertices[17] = color;
                 vertices[18] = dashU2;
