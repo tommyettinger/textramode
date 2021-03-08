@@ -31,24 +31,27 @@ public class TextraFontTest extends ApplicationAdapter {
     public void create() {
         Gdx.app.setLogLevel(Application.LOG_DEBUG);
         batch = new SpriteBatch();
-//        font = new TextraFont("Cozette.fnt", "Cozette.png", false).scale(2f, 2f);
+        font = new TextraFont("Gentium.fnt", false, -1f, 0f, -4.5f, 0f).scale(0.5f, 0.5f);
+        for(TextureRegion parent : font.parents){
+            parent.getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+        }
+//        font = new TextraFont("Cozette.fnt", "Cozette.png", false, 1, 1, -1, -1);//.scale(2f, 2f);
+        font = new TextraFont("AStarry.fnt", false, 1, 1, -1, -1);//.scale(2f, 2f);
 //        font = new TextraFont("Iosevka-Slab-msdf.fnt", "Iosevka-Slab-msdf.png", true, 3f, 6, -4f, -7).scale(0.75f, 0.75f);
-        font = new TextraFont("Inconsolata-LGC-Custom-msdf.fnt", "Inconsolata-LGC-Custom-msdf.png", true, 5f, 1f, -10f, -8f).scaleTo(16f, 36f);
-//        font = new TextraFont("Gentium.fnt", false, -1f, 0f, -4.5f, 0f).scale(0.5f, 0.5f);
-//        for(TextureRegion parent : font.parents){
-//            parent.getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-//        }
+//        font = new TextraFont("Inconsolata-LGC-Custom-msdf.fnt", "Inconsolata-LGC-Custom-msdf.png", true, 5f, 1f, -10f, -8f).scaleTo(16f, 36f);
 //        TextureAtlas atlas = new TextureAtlas(Gdx.files.internal("dawnlike/Dawnlike.atlas"), Gdx.files.internal("dawnlike"));
 //        font = new TextraFont("dawnlike/PlainAndSimplePlus.fnt", atlas.findRegion("PlainAndSimplePlus"), false, 0, 0, 2, 2);
 
-        font.markup("[#22BB22FF]Hello, [~]World[~]Universe[.]$[=]$[^]$[^]!", glyphs[0] = new LongArray());
-        font.markup("The [RED]MAW[] of the [/][CYAN]wendigo[/] (wendigo)[] [*]appears[*]!", glyphs[1] = new LongArray());
-        font.markup("The [_][GRAY]BLADE[] of [*][/][YELLOW]KINGS[] strikes!", glyphs[2] = new LongArray());
-        font.markup("[_][;]Each cap, [,]All lower, [!]Caps lock[], [?]Unknown[]?", glyphs[3] = new LongArray());
-        font.markup("[GOLD]φ[] = (1 + 5[^]0.5[^]) * 0.5", glyphs[4] = new LongArray());
+        int line = 0;
+        font.markup("[#22BB22FF]Hello, [~]World[~]Universe[.]$[=]$[^]$[^]!", glyphs[line++] = new LongArray());
+        font.markup("The [RED]MAW[] of the [/][CYAN]wendigo[/] (wendigo)[] [*]appears[*]!", glyphs[line++] = new LongArray());
+        font.markup("The [_][GRAY]BLADE[] of [*][/][YELLOW]KINGS[] strikes!", glyphs[line++] = new LongArray());
+        font.markup("[_][;]Each cap, [,]All lower, [!]Caps lock[], [?]Unknown[]?", glyphs[line++] = new LongArray());
+        font.markup("[GOLD]phi[] = (1 + 5[^]0.5[^]) * 0.5", glyphs[line++] = new LongArray());
+        font.markup("[ORANGE][*]Mister Bond[*]! This is my right-hand man, Nosejob.[]", glyphs[line] = new LongArray());
+//        font.markup("[GOLD]φ[] = (1 + 5[^]0.5[^]) * 0.5", glyphs[line++] = new LongArray());
+//        font.markup("[ORANGE]¿Qué? ¡Arribate, mijo![]", glyphs[line] = new LongArray());
 //        font.markup("Music, or muzak? [.]♭[=]♭[^]♭[=]♭[.]♭[]", glyphs[5] = new LongArray());
-//        font.markup("[/][CYAN]¡Wendigo! ¡Arribate, mijo![/][]", glyphs[0] = new LongArray());
-        font.markup("[ORANGE]¿Qué? ¡Arribate, mijo![]", glyphs[5] = new LongArray());
     }
 
     @Override

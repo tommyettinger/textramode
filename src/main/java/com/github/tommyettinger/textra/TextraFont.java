@@ -27,6 +27,7 @@ public class TextraFont {
          * packing. */
         public float offsetY;
 
+        public float xAdvance;
         /**
          * Creates a GlyphRegion from a parent TextureRegion (typically from an atlas), along with the lower-left x and
          * y coordinates, the width, and the height of the GlyphRegion.
@@ -44,6 +45,7 @@ public class TextraFont {
             super(other);
             offsetX = other.offsetX;
             offsetY = other.offsetY;
+            xAdvance = other.xAdvance;
         }
 
         /**
@@ -376,7 +378,7 @@ public class TextraFont {
             if (page == null) continue;
             for (BitmapFont.Glyph glyph : page) {
                 if (glyph != null) {
-                    int x = glyph.srcX, y = glyph.srcY, a = glyph.xadvance, h = glyph.height;
+                    int x = glyph.srcX, y = glyph.srcY, w = glyph.width, h = glyph.height, a = glyph.xadvance;
                     x += xAdjust;
                     y += yAdjust;
                     a += widthAdjust;
@@ -384,9 +386,10 @@ public class TextraFont {
                     minWidth = Math.min(minWidth, a);
                     cellWidth = Math.max(a, cellWidth);
                     cellHeight = Math.max(h, cellHeight);
-                    GlyphRegion gr = new GlyphRegion(bmFont.getRegion(glyph.page), x, y, a, h);
+                    GlyphRegion gr = new GlyphRegion(bmFont.getRegion(glyph.page), x, y, w, h);
                     gr.offsetX = glyph.xoffset;
                     gr.offsetY = glyph.yoffset;
+                    gr.xAdvance = a;
                     mapping.put(glyph.id & 0xFFFF, gr);
                     if(glyph.kerning != null) {
                         if(kerning == null) kerning = new IntIntMap(128);
@@ -406,7 +409,7 @@ public class TextraFont {
                 }
             }
         }
-        defaultValue = mapping.get(' ', mapping.get(0));
+        defaultValue =  mapping.get(data.missingGlyph == null ? ' ' : data.missingGlyph.id, mapping.get(' ', mapping.values().next()));
         originalCellWidth = cellWidth;
         originalCellHeight = cellHeight;
         isMono = minWidth == cellWidth && kerning == null;
@@ -466,14 +469,15 @@ public class TextraFont {
 //            System.out.printf("'%s' (%5d): width=%d height=%d xoffset=%d yoffset=%d xadvance=%d\n", (char)c, c, w, h, xo, yo, a);
             x += xAdjust;
             y += yAdjust;
-            a += widthAdjust - xo;
+            a += widthAdjust;
             h += heightAdjust;
             minWidth = Math.min(minWidth, a);
             cellWidth = Math.max(a, cellWidth);
             cellHeight = Math.max(h, cellHeight);
-            GlyphRegion gr = new GlyphRegion(parents.get(p), x, y, a, h);
+            GlyphRegion gr = new GlyphRegion(parents.get(p), x, y, w, h);
             gr.offsetX = xo;
             gr.offsetY = yo;
+            gr.xAdvance = a;
             mapping.put(c, gr);
         }
         idx = indexAfter(fnt, "\nkernings count=", 0);
@@ -699,7 +703,7 @@ public class TextraFont {
         v = tr.getV();
         u2 = tr.getU2();
         v2 = tr.getV2();
-        float w = tr.getRegionWidth() * scaleX, changedW = w, h = tr.getRegionHeight() * scaleY;
+        float w = tr.getRegionWidth() * scaleX, changedW = (tr.xAdvance - (isMono ? 0f : tr.offsetX)) * scaleX, h = tr.getRegionHeight() * scaleY;
         if(!isMono) {
             x += tr.offsetX * scaleX;
             changedW += tr.offsetX * scaleX;
@@ -799,13 +803,13 @@ public class TextraFont {
                 vertices[8] = underU;
                 vertices[9] = underV2;
 
-                vertices[10] = x + w + xPx;
+                vertices[10] = x + changedW + xPx;
                 vertices[11] = yu;
                 vertices[12] = color;
                 vertices[13] = underU2;
                 vertices[14] = underV2;
 
-                vertices[15] = x + w + xPx;
+                vertices[15] = x + changedW + xPx;
                 vertices[16] = yu + hu;
                 vertices[17] = color;
                 vertices[18] = underU2;
@@ -834,13 +838,13 @@ public class TextraFont {
                 vertices[8] = dashU;
                 vertices[9] = dashV2;
 
-                vertices[10] = x + w + xPx;
+                vertices[10] = x + changedW + xPx;
                 vertices[11] = yd;
                 vertices[12] = color;
                 vertices[13] = dashU2;
                 vertices[14] = dashV2;
 
-                vertices[15] = x + w + xPx;
+                vertices[15] = x + changedW + xPx;
                 vertices[16] = yd + hd;
                 vertices[17] = color;
                 vertices[18] = dashU2;
