@@ -477,7 +477,7 @@ public class TextraFont {
             mapping.put(c, gr);
         }
         idx = indexAfter(fnt, "\nkernings count=", 0);
-        if(idx >= 0){
+        if(idx < fnt.length()){
             int kernings = intFromDec(fnt, idx, idx = indexAfter(fnt, "\nkerning first=", idx));
             kerning = new IntIntMap(kernings);
             for (int i = 0; i < kernings; i++) {
