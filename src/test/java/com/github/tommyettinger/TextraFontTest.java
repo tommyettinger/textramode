@@ -9,14 +9,16 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.LongArray;
 import com.github.tommyettinger.textra.TextraFont;
+import com.github.tommyettinger.textra.TextraLayout;
 
 public class TextraFontTest extends ApplicationAdapter {
 
     TextraFont font;
     SpriteBatch batch;
-    LongArray[] glyphs = new LongArray[6];
+    TextraLayout[] layouts = new TextraLayout[6];
 
     public static void main(String[] args){
         Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
@@ -43,12 +45,12 @@ public class TextraFontTest extends ApplicationAdapter {
 //        font = new TextraFont("dawnlike/PlainAndSimplePlus.fnt", atlas.findRegion("PlainAndSimplePlus"), false, 0, 0, 2, 2);
 
         int line = 0;
-        font.markup("[#22BB22FF]Hello, [~]World[~]Universe[.]$[=]$[^]$[^]!", glyphs[line++] = new LongArray());
-        font.markup("The [RED]MAW[] of the [/][CYAN]wendigo[/] (wendigo)[] [*]appears[*]!", glyphs[line++] = new LongArray());
-        font.markup("The [_][GRAY]BLADE[] of [*][/][YELLOW]KINGS[] strikes!", glyphs[line++] = new LongArray());
-        font.markup("[_][;]Each cap, [,]All lower, [!]Caps lock[], [?]Unknown[]?", glyphs[line++] = new LongArray());
-        font.markup("[GOLD]phi[] = (1 + 5[^]0.5[^]) * 0.5", glyphs[line++] = new LongArray());
-        font.markup("[ORANGE][*]Mister Bond[*]! This is my right-hand man, Nosejob.[]", glyphs[line] = new LongArray());
+        font.markup("[#22BB22FF]Hello, [~]World[~]Universe[.]$[=]$[^]$[^]!", layouts[line++] = new TextraLayout());
+        font.markup("The [RED]MAW[] of the [/][CYAN]wendigo[/] (wendigo)[] [*]appears[*]!", layouts[line++] = new TextraLayout());
+        font.markup("The [_][GRAY]BLADE[] of [*][/][YELLOW]KINGS[] strikes!", layouts[line++] = new TextraLayout());
+        font.markup("[_][;]Each cap, [,]All lower, [!]Caps lock[], [?]Unknown[]?", layouts[line++] = new TextraLayout());
+        font.markup("[GOLD]phi[] = (1 + 5[^]0.5[^]) * 0.5", layouts[line++] = new TextraLayout());
+        font.markup("[ORANGE][*]Mister Bond[*]! This is my right-hand man, Nosejob.[]", layouts[line] = new TextraLayout());
 //        font.markup("[GOLD]φ[] = (1 + 5[^]0.5[^]) * 0.5", glyphs[line++] = new LongArray());
 //        font.markup("[ORANGE]¿Qué? ¡Arribate, mijo![]", glyphs[line] = new LongArray());
 //        font.markup("Music, or muzak? [.]♭[=]♭[^]♭[=]♭[.]♭[]", glyphs[5] = new LongArray());
@@ -58,12 +60,12 @@ public class TextraFontTest extends ApplicationAdapter {
     public void render() {
         Gdx.gl.glClearColor(0.25f, 0.4f, 0.2f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        float x = 0, y = font.cellHeight * glyphs.length;
+        float x = 400, y = font.cellHeight * layouts.length;
         batch.begin();
         font.enableShader(batch);
 
-        for (int i = 0; i < glyphs.length; i++) {
-            font.drawGlyphs(batch, glyphs[i], x, y -= font.cellHeight);
+        for (int i = 0; i < layouts.length; i++) {
+            font.drawGlyphs(batch, layouts[i], x, y -= font.cellHeight, Align.center);
         }
 
         batch.end();

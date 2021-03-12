@@ -83,7 +83,7 @@ public class TextraFont {
             SUBSCRIPT = 1L << 25, MIDSCRIPT = 2L << 25, SUPERSCRIPT = 3L << 25;
 
     private final float[] vertices = new float[20];
-    private final LongArray tempGlyphs = new LongArray(128);
+    private final TextraLayout tempGlyphs = new TextraLayout(this, 128);
 
     public static final String vertexShader = "attribute vec4 " + ShaderProgram.POSITION_ATTRIBUTE + ";\n"
             + "attribute vec4 " + ShaderProgram.COLOR_ATTRIBUTE + ";\n"
@@ -609,8 +609,8 @@ public class TextraFont {
      * </ul>
      * <br>
      * Parsing markup for a full screen every frame typically isn't necessary, and you may want to store the most recent
-     * glyphs by calling {@link #markup(String, LongArray)} and render its result with
-     * {@link #drawGlyphs(Batch, LongArray, float, float)} every frame.
+     * glyphs by calling {@link #markup(String, TextraLayout)} and render its result with
+     * {@link #drawGlyphs(Batch, TextraLayout, float, float)} every frame.
      * @param batch typically a SpriteBatch
      * @param text typically a String with markup, but this can also be a StringBuilder or some custom class
      * @param x the x position in world space to start drawing the text at (lower left corner)
@@ -618,21 +618,22 @@ public class TextraFont {
      * @return the number of glyphs drawn
      */
     public int drawMarkupText(Batch batch, String text, float x, float y) {
-        tempGlyphs.clear();
+        LongArray glyphs = tempGlyphs.glyphs;
+        glyphs.clear();
         markup(text, tempGlyphs);
-        final int n = tempGlyphs.size;
+        final int n = glyphs.size;
         if(kerning != null) {
             int kern = -1, amt = 0;
             long glyph;
             for (int i = 0; i < n; i++) {
-                kern = kern << 16 | (int) ((glyph = tempGlyphs.get(i)) & 0xFFFF);
+                kern = kern << 16 | (int) ((glyph = glyphs.get(i)) & 0xFFFF);
                 amt = kerning.get(kern, 0);
                 x += drawGlyph(batch, glyph, x + amt, y) + amt;
             }
         }
         else {
             for (int i = 0; i < n; i++) {
-                x += drawGlyph(batch, tempGlyphs.get(i), x, y);
+                x += drawGlyph(batch, glyphs.get(i), x, y);
             }
         }
         return n;
@@ -641,44 +642,63 @@ public class TextraFont {
     /**
      * Draws the specified LongArray of glyphs with a Batch at a given x, y position, drawing the full LongArray.
      * @param batch typically a SpriteBatch
-     * @param glyphs typically returned by {@link #markup(String, LongArray)}
+     * @param glyphs typically returned by {@link #markup(String, TextraLayout)}
      * @param x the x position in world space to start drawing the glyph at (lower left corner)
      * @param y the y position in world space to start drawing the glyph at (lower left corner)
      * @return the number of glyphs drawn
      */
-    public int drawGlyphs(Batch batch, LongArray glyphs, float x, float y) {
+    public int drawGlyphs(Batch batch, TextraLayout glyphs, float x, float y) {
         if(glyphs == null) return 0;
-        return drawGlyphs(batch, glyphs, 0, glyphs.size, x, y);
+        return drawGlyphs(batch, glyphs, x, y, Align.left);
     }
     /**
-     * Draws the specified LongArray of glyphs with a Batch at a given x, y position, starting at offset in glyphs and
-     * attempting to draw a count of glyphs equal to length. This may draw fewer glyphs if the LongArray is exhausted.
+     * Draws the specified TextraLayout of glyphs with a Batch at a given x, y position, using {@code align} to
+     * determine how to position the text. Typically, align is {@link Align#left}, {@link Align#center}, or
+     * {@link Align#right}, which make the given x,y point refer to the lower-left corner, center-bottom edge point, or
+     * lower-right corner, respectively.
      * @param batch typically a SpriteBatch
-     * @param glyphs typically returned by {@link #markup(String, LongArray)}
-     * @param offset the first position in glyphs to use
-     * @param length how many items in glyphs to try to draw
-     * @param x the x position in world space to start drawing the glyph at (lower left corner)
-     * @param y the y position in world space to start drawing the glyph at (lower left corner)
+     * @param glyphs typically returned by {@link #markup(String, TextraLayout)}
+     * @param x the x position in world space to start drawing the glyph at (where this is depends on align)
+     * @param y the y position in world space to start drawing the glyph at (where this is depends on align)
+     * @param align an {@link Align} constant; if {@link Align#left}, x and y refer to the lower left corner
      * @return the number of glyphs drawn
      */
-    public int drawGlyphs(Batch batch, LongArray glyphs, int offset, int length, float x, float y) {
+    public int drawGlyphs(Batch batch, TextraLayout glyphs, float x, float y, int align) {
+        if(glyphs == null) return 0;
         int drawn = 0;
+        if(Align.isCenterHorizontal(align))
+            x -= glyphs.width * 0.5f;
+        else if(Align.isRight(align))
+            x -= glyphs.width;
         if(kerning != null) {
             int kern = -1;
             float amt = 0;
             long glyph;
-            for (int i = offset, n = glyphs.size; i < n && drawn < length; i++, drawn++) {
-                kern = kern << 16 | (int) ((glyph = glyphs.get(i)) & 0xFFFF);
+            for (int i = 0, n = glyphs.glyphs.size; i < n; i++, drawn++) {
+                kern = kern << 16 | (int) ((glyph = glyphs.glyphs.get(i)) & 0xFFFF);
                 amt = kerning.get(kern, 0) * scaleX;
                 x += drawGlyph(batch, glyph, x + amt, y) + amt;
             }
         }
         else {
-            for (int i = offset, n = glyphs.size; i < n && drawn < length; i++, drawn++) {
-                x += drawGlyph(batch, glyphs.get(i), x, y);
+            for (int i = 0, n = glyphs.glyphs.size; i < n; i++, drawn++) {
+                x += drawGlyph(batch, glyphs.glyphs.get(i), x, y);
             }
         }
         return drawn;
+    }
+
+    public float xAdvance(long glyph){
+        GlyphRegion tr = mapping.get((char) glyph);
+        if (tr == null) return 0f;
+        float changedW = tr.xAdvance * scaleX;
+        if (isMono) {
+            changedW += tr.offsetX * scaleX;
+        }
+        if((glyph & SUPERSCRIPT) != 0L){
+            changedW *= 0.5f;
+        }
+        return changedW;
     }
 
     /**
@@ -880,18 +900,26 @@ public class TextraFont {
      *     <li>{@code [COLORNAME]}, where "COLORNAME" is a typically-upper-case color name that will be looked up in
      *     {@link Colors}, changes the color.</li>
      * </ul>
-     * You can render {@code appendTo} using {@link #drawGlyphs(Batch, LongArray, float, float)}.
+     * You can render {@code appendTo} using {@link #drawGlyphs(Batch, TextraLayout, float, float)}.
      * @param text text with markup
      * @param appendTo a LongArray that stores color, font formatting, and a char in each long
      * @return appendTo, for chaining
      */
-    public LongArray markup(String text, LongArray appendTo) {
+    public TextraLayout markup(String text, TextraLayout appendTo) {
         boolean capitalize = false, previousWasLetter = false,
                 capsLock = false, lowerCase = false;
         int c;
         long color = 0xFFFFFFFF00000000L;
         final long COLOR_MASK = color;
         long current = color;
+        if(appendTo.font == null || !appendTo.font.equals(this))
+        {
+            appendTo.glyphs.clear();
+            appendTo.font = this;
+        }
+        appendTo.height = Math.max(appendTo.height, cellHeight);
+        int kern = -1;
+        float amt = 0f;
         for (int i = 0, n = text.length(); i < n; i++) {
             if(text.charAt(i) == '['){
                 if(++i < n && (c = text.charAt(i)) != '['){
@@ -969,7 +997,9 @@ public class TextraFont {
                     i += len;
                 }
                 else {
-                    appendTo.add(current | '[');
+                    kern = kern << 16 | (int) ((current | '[') & 0xFFFF);
+                    appendTo.width += xAdvance(current | '[') + kerning.get(kern, 0) * scaleX;
+                    appendTo.glyphs.add(current | '[');
                 }
             } else {
                 char ch = text.charAt(i);
@@ -988,7 +1018,9 @@ public class TextraFont {
                 else {
                     previousWasLetter = false;
                 }
-                appendTo.add(current | ch);
+                kern = kern << 16 | (int) ((current | ch) & 0xFFFF);
+                appendTo.width += xAdvance(current | ch) + kerning.get(kern, 0) * scaleX;
+                appendTo.glyphs.add(current | ch);
             }
         }
         return appendTo;
