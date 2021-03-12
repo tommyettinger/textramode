@@ -60,12 +60,12 @@ public class TextraFontTest extends ApplicationAdapter {
     public void render() {
         Gdx.gl.glClearColor(0.25f, 0.4f, 0.2f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        float x = 400, y = font.cellHeight * layouts.length;
+        float x = 800, y = font.cellHeight * layouts.length;
         batch.begin();
         font.enableShader(batch);
 
         for (int i = 0; i < layouts.length; i++) {
-            font.drawGlyphs(batch, layouts[i], x, y -= font.cellHeight, Align.center);
+            font.drawGlyphs(batch, layouts[i], x, y -= font.cellHeight, Align.right);
         }
 
         batch.end();
