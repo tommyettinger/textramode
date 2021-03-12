@@ -36,7 +36,7 @@ public class TextraFontTest extends ApplicationAdapter {
             parent.getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         }
 //        font = new TextraFont("Cozette.fnt", "Cozette.png", false, 1, 1, -1, -1);//.scale(2f, 2f);
-        font = new TextraFont("AStarry.fnt", false, 1, 1, -1, -1);//.scale(2f, 2f);
+//        font = new TextraFont("AStarry.fnt", false, 1, 1, -1, -1);//.scale(2f, 2f);
 //        font = new TextraFont("Iosevka-Slab-msdf.fnt", "Iosevka-Slab-msdf.png", true, 3f, 6, -4f, -7).scale(0.75f, 0.75f);
 //        font = new TextraFont("Inconsolata-LGC-Custom-msdf.fnt", "Inconsolata-LGC-Custom-msdf.png", true, 5f, 1f, -10f, -8f).scaleTo(16f, 36f);
 //        TextureAtlas atlas = new TextureAtlas(Gdx.files.internal("dawnlike/Dawnlike.atlas"), Gdx.files.internal("dawnlike"));

@@ -703,10 +703,11 @@ public class TextraFont {
         v = tr.getV();
         u2 = tr.getU2();
         v2 = tr.getV2();
-        float w = tr.getRegionWidth() * scaleX, changedW = (tr.xAdvance - (isMono ? 0f : tr.offsetX)) * scaleX, h = tr.getRegionHeight() * scaleY;
-        if(!isMono) {
-            x += tr.offsetX * scaleX;
+        float w = tr.getRegionWidth() * scaleX, changedW = tr.xAdvance * scaleX, h = tr.getRegionHeight() * scaleY;
+        if (isMono) {
             changedW += tr.offsetX * scaleX;
+        } else {
+            x += tr.offsetX * scaleX;
         }
         float yt = y + cellHeight - h - tr.offsetY * scaleY;
         if ((glyph & OBLIQUE) != 0L) {
