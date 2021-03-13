@@ -4,19 +4,19 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.Pools;
 
-public class TextraLayout implements Pool.Poolable {
-    protected TextraFont font;
+public class Layout implements Pool.Poolable {
+    protected Font font;
     protected final Array<Line> lines = new Array<>(true, 8, Line.class);
 
-    public TextraLayout() {
+    public Layout() {
     }
 
-    public TextraLayout(TextraFont font) {
+    public Layout(Font font) {
         this.font = font;
         lines.add(Pools.obtain(Line.class));
     }
 
-    public TextraLayout font(TextraFont font) {
+    public Layout font(Font font) {
         if(this.font == null || !this.font.equals(font))
         {
             this.font = font;
@@ -27,7 +27,7 @@ public class TextraLayout implements Pool.Poolable {
         return this;
     }
 
-    public TextraLayout add(long glyph){
+    public Layout add(long glyph){
         if((glyph & 0xFFFFL) == 10L)
         {
             lines.add(Pools.obtain(Line.class));
@@ -38,7 +38,7 @@ public class TextraLayout implements Pool.Poolable {
         return this;
     }
 
-    public TextraLayout clear() {
+    public Layout clear() {
         Pools.freeAll(lines);
         lines.clear();
         lines.add(Pools.obtain(Line.class));

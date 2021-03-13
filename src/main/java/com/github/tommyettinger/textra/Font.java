@@ -13,7 +13,7 @@ import com.badlogic.gdx.utils.*;
 
 import java.util.BitSet;
 
-public class TextraFont {
+public class Font {
     /**
      * Describes the region of a glyph in a larger TextureRegion, carrying a little more info about the offsets that
      * apply to where the glyph is rendered.
@@ -83,7 +83,7 @@ public class TextraFont {
             SUBSCRIPT = 1L << 25, MIDSCRIPT = 2L << 25, SUPERSCRIPT = 3L << 25;
 
     private final float[] vertices = new float[20];
-    private final TextraLayout tempLayout = Pools.obtain(TextraLayout.class);
+    private final Layout tempLayout = Pools.obtain(Layout.class);
 
     public static final String vertexShader = "attribute vec4 " + ShaderProgram.POSITION_ATTRIBUTE + ";\n"
             + "attribute vec4 " + ShaderProgram.COLOR_ATTRIBUTE + ";\n"
@@ -267,11 +267,11 @@ public class TextraFont {
     }
 
     //// constructor section
-    public TextraFont(String fntName, String textureName, boolean isMSDF){
+    public Font(String fntName, String textureName, boolean isMSDF){
         this(fntName, textureName, isMSDF, 0f, 0f, 0f, 0f);
     }
 
-    public TextraFont(TextraFont toCopy){
+    public Font(Font toCopy){
         isMSDF = toCopy.isMSDF;
         isMono = toCopy.isMono;
         msdfCrispness = toCopy.msdfCrispness;
@@ -294,8 +294,8 @@ public class TextraFont {
             shader = toCopy.shader;
     }
 
-    public TextraFont(String fntName, boolean isMSDF,
-                      float xAdjust, float yAdjust, float widthAdjust, float heightAdjust) {
+    public Font(String fntName, boolean isMSDF,
+                float xAdjust, float yAdjust, float widthAdjust, float heightAdjust) {
         this.isMSDF = isMSDF;
         if (isMSDF) {
             shader = new ShaderProgram(vertexShader, msdfFragmentShader);
@@ -305,8 +305,8 @@ public class TextraFont {
         loadFNT(fntName, xAdjust, yAdjust, widthAdjust, heightAdjust);
     }
 
-    public TextraFont(String fntName, String textureName, boolean isMSDF,
-                      float xAdjust, float yAdjust, float widthAdjust, float heightAdjust) {
+    public Font(String fntName, String textureName, boolean isMSDF,
+                float xAdjust, float yAdjust, float widthAdjust, float heightAdjust) {
         this.isMSDF = isMSDF;
         if (isMSDF) {
             shader = new ShaderProgram(vertexShader, msdfFragmentShader);
@@ -326,8 +326,8 @@ public class TextraFont {
         loadFNT(fntName, xAdjust, yAdjust, widthAdjust, heightAdjust);
     }
 
-    public TextraFont(String fntName, TextureRegion parent, boolean isMSDF,
-                      float xAdjust, float yAdjust, float widthAdjust, float heightAdjust) {
+    public Font(String fntName, TextureRegion parent, boolean isMSDF,
+                float xAdjust, float yAdjust, float widthAdjust, float heightAdjust) {
         this.isMSDF = isMSDF;
         if (isMSDF) {
             shader = new ShaderProgram(vertexShader, msdfFragmentShader);
@@ -340,8 +340,8 @@ public class TextraFont {
         loadFNT(fntName, xAdjust, yAdjust, widthAdjust, heightAdjust);
     }
 
-    public TextraFont(String fntName, Array<TextureRegion> parents, boolean isMSDF,
-                      float xAdjust, float yAdjust, float widthAdjust, float heightAdjust) {
+    public Font(String fntName, Array<TextureRegion> parents, boolean isMSDF,
+                float xAdjust, float yAdjust, float widthAdjust, float heightAdjust) {
         this.isMSDF = isMSDF;
         if (isMSDF) {
             shader = new ShaderProgram(vertexShader, msdfFragmentShader);
@@ -357,8 +357,8 @@ public class TextraFont {
         loadFNT(fntName, xAdjust, yAdjust, widthAdjust, heightAdjust);
     }
 
-    public TextraFont(BitmapFont bmFont, boolean isMSDF,
-                      float xAdjust, float yAdjust, float widthAdjust, float heightAdjust) {
+    public Font(BitmapFont bmFont, boolean isMSDF,
+                float xAdjust, float yAdjust, float widthAdjust, float heightAdjust) {
         this.isMSDF = isMSDF;
         if (isMSDF) {
             shader = new ShaderProgram(vertexShader, msdfFragmentShader);
@@ -517,9 +517,9 @@ public class TextraFont {
      * Scales the font by the given horizontal and vertical multipliers.
      * @param horizontal how much to multiply the width of each glyph by
      * @param vertical how much to multiply the height of each glyph by
-     * @return this TextraFont, for chaining
+     * @return this Font, for chaining
      */
-    public TextraFont scale(float horizontal, float vertical) {
+    public Font scale(float horizontal, float vertical) {
         scaleX *= horizontal;
         scaleY *= vertical;
         cellWidth *= horizontal;
@@ -531,9 +531,9 @@ public class TextraFont {
      * Scales the font so it will have the given width and height.
      * @param width the target width of the font, in world units
      * @param height the target height of the font, in world units
-     * @return this TextraFont, for chaining
+     * @return this Font, for chaining
      */
-    public TextraFont scaleTo(float width, float height) {
+    public Font scaleTo(float width, float height) {
         scaleX = width / originalCellWidth;
         scaleY = height / originalCellHeight;
         cellWidth  = width;
@@ -544,7 +544,7 @@ public class TextraFont {
     /**
      * Must be called before drawing anything with an MSDF font; does not need to be called for other fonts unless you
      * are mixing them with MSDF fonts or other shaders. This also resets the Batch color to white, in case it had been
-     * left with a different setting before. If this TextraFont is not an MSDF font, then this resets batch's shader to the
+     * left with a different setting before. If this Font is not an MSDF font, then this resets batch's shader to the
      * default (using {@code batch.setShader(null)}).
      * @param batch the Batch to instruct to use the appropriate shader for this font; should usually be a SpriteBatch
      */
@@ -613,8 +613,8 @@ public class TextraFont {
      * </ul>
      * <br>
      * Parsing markup for a full screen every frame typically isn't necessary, and you may want to store the most recent
-     * glyphs by calling {@link #markup(String, TextraLayout)} and render its result with
-     * {@link #drawGlyphs(Batch, TextraLayout, float, float)} every frame.
+     * glyphs by calling {@link #markup(String, Layout)} and render its result with
+     * {@link #drawGlyphs(Batch, Layout, float, float)} every frame.
      * @param batch typically a SpriteBatch
      * @param text typically a String with markup, but this can also be a StringBuilder or some custom class
      * @param x the x position in world space to start drawing the text at (lower left corner)
@@ -622,7 +622,7 @@ public class TextraFont {
      * @return the number of glyphs drawn
      */
     public int drawMarkupText(Batch batch, String text, float x, float y) {
-        TextraLayout layout = tempLayout;
+        Layout layout = tempLayout;
         layout.clear();
         markup(text, tempLayout);
         final int lines = layout.lines();
@@ -650,29 +650,29 @@ public class TextraFont {
     }
 
         /**
-     * Draws the specified TextraLayout of glyphs with a Batch at a given x, y position, drawing the full layout.
+     * Draws the specified Layout of glyphs with a Batch at a given x, y position, drawing the full layout.
      * @param batch typically a SpriteBatch
-     * @param glyphs typically returned as part of {@link #markup(String, TextraLayout)}
+     * @param glyphs typically returned as part of {@link #markup(String, Layout)}
      * @param x the x position in world space to start drawing the glyph at (lower left corner)
      * @param y the y position in world space to start drawing the glyph at (lower left corner)
      * @return the number of glyphs drawn
      */
-    public int drawGlyphs(Batch batch, TextraLayout glyphs, float x, float y) {
+    public int drawGlyphs(Batch batch, Layout glyphs, float x, float y) {
         return drawGlyphs(batch, glyphs, x, y, Align.left);
     }
     /**
-     * Draws the specified TextraLayout of glyphs with a Batch at a given x, y position, using {@code align} to
+     * Draws the specified Layout of glyphs with a Batch at a given x, y position, using {@code align} to
      * determine how to position the text. Typically, align is {@link Align#left}, {@link Align#center}, or
      * {@link Align#right}, which make the given x,y point refer to the lower-left corner, center-bottom edge point, or
      * lower-right corner, respectively.
      * @param batch typically a SpriteBatch
-     * @param glyphs typically returned by {@link #markup(String, TextraLayout)}
+     * @param glyphs typically returned by {@link #markup(String, Layout)}
      * @param x the x position in world space to start drawing the glyph at (where this is depends on align)
      * @param y the y position in world space to start drawing the glyph at (where this is depends on align)
      * @param align an {@link Align} constant; if {@link Align#left}, x and y refer to the lower left corner
      * @return the number of glyphs drawn
      */
-    public int drawGlyphs(Batch batch, TextraLayout glyphs, float x, float y, int align) {
+    public int drawGlyphs(Batch batch, Layout glyphs, float x, float y, int align) {
         int drawn = 0;
         final int lines = glyphs.lines();
         for (int ln = 0; ln < lines; ln++) {
@@ -685,7 +685,7 @@ public class TextraFont {
     /**
      * Draws the specified Line of glyphs with a Batch at a given x, y position, drawing the full Line.
      * @param batch typically a SpriteBatch
-     * @param glyphs typically returned as part of {@link #markup(String, TextraLayout)}
+     * @param glyphs typically returned as part of {@link #markup(String, Layout)}
      * @param x the x position in world space to start drawing the glyph at (lower left corner)
      * @param y the y position in world space to start drawing the glyph at (lower left corner)
      * @return the number of glyphs drawn
@@ -700,7 +700,7 @@ public class TextraFont {
      * {@link Align#right}, which make the given x,y point refer to the lower-left corner, center-bottom edge point, or
      * lower-right corner, respectively.
      * @param batch typically a SpriteBatch
-     * @param glyphs typically returned as part of {@link #markup(String, TextraLayout)}
+     * @param glyphs typically returned as part of {@link #markup(String, Layout)}
      * @param x the x position in world space to start drawing the glyph at (where this is depends on align)
      * @param y the y position in world space to start drawing the glyph at (where this is depends on align)
      * @param align an {@link Align} constant; if {@link Align#left}, x and y refer to the lower left corner
@@ -943,12 +943,12 @@ public class TextraFont {
      *     <li>{@code [COLORNAME]}, where "COLORNAME" is a typically-upper-case color name that will be looked up in
      *     {@link Colors}, changes the color.</li>
      * </ul>
-     * You can render {@code appendTo} using {@link #drawGlyphs(Batch, TextraLayout, float, float)}.
+     * You can render {@code appendTo} using {@link #drawGlyphs(Batch, Layout, float, float)}.
      * @param text text with markup
      * @param appendTo a LongArray that stores color, font formatting, and a char in each long
      * @return appendTo, for chaining
      */
-    public TextraLayout markup(String text, TextraLayout appendTo) {
+    public Layout markup(String text, Layout appendTo) {
         boolean capitalize = false, previousWasLetter = false,
                 capsLock = false, lowerCase = false;
         int c;

@@ -10,19 +10,18 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.Align;
-import com.badlogic.gdx.utils.LongArray;
-import com.github.tommyettinger.textra.TextraFont;
-import com.github.tommyettinger.textra.TextraLayout;
+import com.github.tommyettinger.textra.Font;
+import com.github.tommyettinger.textra.Layout;
 
 public class TextraFontTest extends ApplicationAdapter {
 
-    TextraFont font;
+    Font font;
     SpriteBatch batch;
-    TextraLayout[] layouts = new TextraLayout[6];
+    Layout layout = new Layout();
 
     public static void main(String[] args){
         Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
-        config.setTitle("TextraFont test");
+        config.setTitle("textramode Font test");
         config.setWindowedMode(800, 640);
         config.disableAudio(true);
         config.useVsync(true);
@@ -33,7 +32,7 @@ public class TextraFontTest extends ApplicationAdapter {
     public void create() {
         Gdx.app.setLogLevel(Application.LOG_DEBUG);
         batch = new SpriteBatch();
-        font = new TextraFont("Gentium.fnt", false, -1f, 0f, -4.5f, 0f).scale(0.5f, 0.5f);
+        font = new Font("Gentium.fnt", false, -1f, 0f, -4.5f, 0f).scale(0.5f, 0.5f);
         for(TextureRegion parent : font.parents){
             parent.getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         }
@@ -45,13 +44,14 @@ public class TextraFontTest extends ApplicationAdapter {
 //        font = new TextraFont("dawnlike/PlainAndSimplePlus.fnt", atlas.findRegion("PlainAndSimplePlus"), false, 0, 0, 2, 2);
 
         int line = 0;
-        font.markup("[#22BB22FF]Hello, [~]World[~]Universe[.]$[=]$[^]$[^]!\n"
-                + "The [RED]MAW[] of the [/][CYAN]wendigo[/] (wendigo)[] [*]appears[*]!\n"
-                + "The [_][GRAY]BLADE[] of [*][/][YELLOW]KINGS[] strikes!\n"
-                + "[_][;]Each cap, [,]All lower, [!]Caps lock[], [?]Unknown[]?\n"
-                + "[GOLD]phi[] = (1 + 5[^]0.5[^]) * 0.5\n"
-                + "[ORANGE][*]Mister Bond[*]! This is my right-hand man, Nosejob.[]"
-                , layouts[0] = new TextraLayout());
+        font.markup("[#22BB22FF]Hello, [~]World[~]Universe[.]$[=]$[^]$[^]!"
+                + "\nThe [RED]MAW[] of the [/][CYAN]wendigo[/] (wendigo)[] [*]appears[*]!"
+                + "\nThe [_][GRAY]BLADE[] of [*][/][YELLOW]KINGS[] strikes!"
+                + "\n[_][;]Each cap, [,]All lower, [!]Caps lock[], [?]Unknown[]?"
+                + "\n[GOLD]phi[] = (1 + 5[^]0.5[^]) * 0.5"
+                + "\n[ORANGE][*]Mister Bond[*]! This is my right-hand man, Nosejob."
+                + "\nPchnąć[] w tę łódź [TAN]jeża[] lub ośm skrzyń [PURPLE]fig[]."
+                , layout);
 
 //        font.markup("[#22BB22FF]Hello, [~]World[~]Universe[.]$[=]$[^]$[^]!", layouts[line++] = new TextraLayout());
 //        font.markup("The [RED]MAW[] of the [/][CYAN]wendigo[/] (wendigo)[] [*]appears[*]!", layouts[line++] = new TextraLayout());
@@ -69,13 +69,11 @@ public class TextraFontTest extends ApplicationAdapter {
     public void render() {
         Gdx.gl.glClearColor(0.25f, 0.4f, 0.2f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        float x = 800, y = font.cellHeight * layouts[0].lines();
+        float x = 800, y = font.cellHeight * layout.lines();
         batch.begin();
         font.enableShader(batch);
 
-        for (int i = 0; i < 1; i++) {
-            font.drawGlyphs(batch, layouts[i], x, y -= font.cellHeight, Align.right);
-        }
+        font.drawGlyphs(batch, layout, x, y -= font.cellHeight, Align.right);
 
         batch.end();
         Gdx.graphics.setTitle(Gdx.graphics.getFramesPerSecond() + " FPS");
