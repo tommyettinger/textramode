@@ -90,4 +90,21 @@ public class Layout implements Pool.Poolable {
         lines.clear();
         lines.add(Pools.obtain(Line.class));
     }
+
+    public StringBuilder appendInto(StringBuilder sb){
+        for (int i = 0, n = lines.size; i < n;) {
+            Line line = lines.get(i);
+            for (int j = 0, ln = line.glyphs.size; j < ln; j++) {
+                sb.append((char)line.glyphs.get(j));
+            }
+            if(++i < n)
+                sb.append('\n');
+        }
+        return sb;
+    }
+
+    @Override
+    public String toString() {
+        return appendInto(new StringBuilder()).toString();
+    }
 }

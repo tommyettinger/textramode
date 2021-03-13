@@ -52,6 +52,7 @@ public class TextraFontTest extends ApplicationAdapter {
                 + "\n[ORANGE][*]Mister Bond[*]! This is my right-hand man, Nosejob."
                 + "\nPchnąć[] w tę łódź [TAN]jeża[] lub ośm skrzyń [PURPLE]fig[]."
                 , layout);
+        System.out.println(layout);
 
 //        font.markup("[#22BB22FF]Hello, [~]World[~]Universe[.]$[=]$[^]$[^]!", layouts[line++] = new TextraLayout());
 //        font.markup("The [RED]MAW[] of the [/][CYAN]wendigo[/] (wendigo)[] [*]appears[*]!", layouts[line++] = new TextraLayout());
