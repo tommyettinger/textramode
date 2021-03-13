@@ -45,12 +45,21 @@ public class TextraFontTest extends ApplicationAdapter {
 //        font = new TextraFont("dawnlike/PlainAndSimplePlus.fnt", atlas.findRegion("PlainAndSimplePlus"), false, 0, 0, 2, 2);
 
         int line = 0;
-        font.markup("[#22BB22FF]Hello, [~]World[~]Universe[.]$[=]$[^]$[^]!", layouts[line++] = new TextraLayout());
-        font.markup("The [RED]MAW[] of the [/][CYAN]wendigo[/] (wendigo)[] [*]appears[*]!", layouts[line++] = new TextraLayout());
-        font.markup("The [_][GRAY]BLADE[] of [*][/][YELLOW]KINGS[] strikes!", layouts[line++] = new TextraLayout());
-        font.markup("[_][;]Each cap, [,]All lower, [!]Caps lock[], [?]Unknown[]?", layouts[line++] = new TextraLayout());
-        font.markup("[GOLD]phi[] = (1 + 5[^]0.5[^]) * 0.5", layouts[line++] = new TextraLayout());
-        font.markup("[ORANGE][*]Mister Bond[*]! This is my right-hand man, Nosejob.[]", layouts[line] = new TextraLayout());
+        font.markup("[#22BB22FF]Hello, [~]World[~]Universe[.]$[=]$[^]$[^]!\n"
+                + "The [RED]MAW[] of the [/][CYAN]wendigo[/] (wendigo)[] [*]appears[*]!\n"
+                + "The [_][GRAY]BLADE[] of [*][/][YELLOW]KINGS[] strikes!\n"
+                + "[_][;]Each cap, [,]All lower, [!]Caps lock[], [?]Unknown[]?\n"
+                + "[GOLD]phi[] = (1 + 5[^]0.5[^]) * 0.5\n"
+                + "[ORANGE][*]Mister Bond[*]! This is my right-hand man, Nosejob.[]"
+                , layouts[0] = new TextraLayout());
+
+//        font.markup("[#22BB22FF]Hello, [~]World[~]Universe[.]$[=]$[^]$[^]!", layouts[line++] = new TextraLayout());
+//        font.markup("The [RED]MAW[] of the [/][CYAN]wendigo[/] (wendigo)[] [*]appears[*]!", layouts[line++] = new TextraLayout());
+//        font.markup("The [_][GRAY]BLADE[] of [*][/][YELLOW]KINGS[] strikes!", layouts[line++] = new TextraLayout());
+//        font.markup("[_][;]Each cap, [,]All lower, [!]Caps lock[], [?]Unknown[]?", layouts[line++] = new TextraLayout());
+//        font.markup("[GOLD]phi[] = (1 + 5[^]0.5[^]) * 0.5", layouts[line++] = new TextraLayout());
+//        font.markup("[ORANGE][*]Mister Bond[*]! This is my right-hand man, Nosejob.[]", layouts[line] = new TextraLayout());
+
 //        font.markup("[GOLD]φ[] = (1 + 5[^]0.5[^]) * 0.5", glyphs[line++] = new LongArray());
 //        font.markup("[ORANGE]¿Qué? ¡Arribate, mijo![]", glyphs[line] = new LongArray());
 //        font.markup("Music, or muzak? [.]♭[=]♭[^]♭[=]♭[.]♭[]", glyphs[5] = new LongArray());
@@ -60,11 +69,11 @@ public class TextraFontTest extends ApplicationAdapter {
     public void render() {
         Gdx.gl.glClearColor(0.25f, 0.4f, 0.2f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        float x = 800, y = font.cellHeight * layouts.length;
+        float x = 800, y = font.cellHeight * layouts[0].lines();
         batch.begin();
         font.enableShader(batch);
 
-        for (int i = 0; i < layouts.length; i++) {
+        for (int i = 0; i < 1; i++) {
             font.drawGlyphs(batch, layouts[i], x, y -= font.cellHeight, Align.right);
         }
 

@@ -1,46 +1,93 @@
 package com.github.tommyettinger.textra;
 
-import com.badlogic.gdx.utils.LongArray;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
+import com.badlogic.gdx.utils.Pools;
 
 public class TextraLayout implements Pool.Poolable {
-    public TextraFont font;
-    public final LongArray glyphs;
-    public float width, height;
+    protected TextraFont font;
+    protected final Array<Line> lines = new Array<>(true, 8, Line.class);
 
-    public TextraLayout(){
-        glyphs = new LongArray(16);
+    public TextraLayout() {
     }
 
     public TextraLayout(TextraFont font) {
         this.font = font;
-        glyphs = new LongArray(16);
-    }
-
-    public TextraLayout(TextraFont font, int capacity) {
-        this.font = font;
-        glyphs = new LongArray(capacity);
+        lines.add(Pools.obtain(Line.class));
     }
 
     public TextraLayout font(TextraFont font) {
-        this.font = font;
+        if(this.font == null || !this.font.equals(font))
+        {
+            this.font = font;
+            Pools.freeAll(lines);
+            lines.clear();
+            lines.add(Pools.obtain(Line.class));
+        }
         return this;
     }
 
-    public TextraLayout size(float width, float height) {
-        this.width = width;
-        this.height = height;
+    public TextraLayout add(long glyph){
+        if((glyph & 0xFFFFL) == 10L)
+        {
+            lines.add(Pools.obtain(Line.class));
+        }
+        else {
+            lines.peek().glyphs.add(glyph);
+        }
         return this;
+    }
+
+    public TextraLayout clear() {
+        Pools.freeAll(lines);
+        lines.clear();
+        lines.add(Pools.obtain(Line.class));
+        return this;
+    }
+
+    public float getWidth() {
+        float w = 0;
+        for (int i = 0, n = lines.size; i < n; i++) {
+            w = Math.max(w, lines.get(i).width);
+        }
+        return w;
+    }
+
+    public float getHeight() {
+        float h = 0;
+        for (int i = 0, n = lines.size; i < n; i++) {
+            h = Math.max(h, lines.get(i).height);
+        }
+        return h;
+    }
+
+    public int lines() {
+        return lines.size;
+    }
+
+    public Line getLine(int i) {
+        return lines.get(i);
+    }
+
+    public Line peekLine() {
+        return lines.peek();
+    }
+
+    public Line pushLine() {
+        Line line = Pools.obtain(Line.class);
+        lines.add(line);
+        return line;
     }
 
     /**
-     * Resets the object for reuse. {@link #font} is nulled, while {@link #glyphs} is cleared. The size is set to 0.
+     * Resets the object for reuse. The font is nulled, but the lines are freed, cleared, and then one blank line is
+     * re-added to lines so it can be used normally later.
      */
     @Override
     public void reset() {
         font = null;
-        glyphs.clear();
-        width = 0;
-        height = 0;
+        Pools.freeAll(lines);
+        lines.clear();
+        lines.add(Pools.obtain(Line.class));
     }
 }
