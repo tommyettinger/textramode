@@ -402,12 +402,17 @@ public class Font implements Disposable {
                     h += heightAdjust;
                     minWidth = Math.min(minWidth, a);
                     cellWidth = Math.max(a, cellWidth);
-                    if(glyph.id == 10)
-                        a = 0;
                     cellHeight = Math.max(h, cellHeight);
                     GlyphRegion gr = new GlyphRegion(bmFont.getRegion(glyph.page), x, y, w, h);
-                    gr.offsetX = glyph.xoffset;
-                    gr.offsetY = glyph.yoffset;
+                    if(glyph.id == 10)
+                    {
+                        a = 0;
+                        gr.offsetX = 0;
+                    }
+                    else {
+                        gr.offsetX = glyph.xoffset;
+                    }
+                    gr.offsetY = -h - glyph.yoffset;
                     gr.xAdvance = a;
                     mapping.put(glyph.id & 0xFFFF, gr);
                     if(glyph.kerning != null) {

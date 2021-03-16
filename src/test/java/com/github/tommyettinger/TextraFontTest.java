@@ -7,8 +7,11 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.utils.Align;
 import com.github.tommyettinger.textra.Font;
 import com.github.tommyettinger.textra.Layout;
@@ -24,6 +27,9 @@ public class TextraFontTest extends ApplicationAdapter {
         config.setTitle("textramode Font test");
         config.setWindowedMode(800, 640);
         config.disableAudio(true);
+        ShaderProgram.prependVertexCode = "#version 150\n";
+        ShaderProgram.prependFragmentCode = "#version 150\n";
+        config.enableGLDebugOutput(true, System.out);
         config.useVsync(true);
         new Lwjgl3Application(new TextraFontTest(), config);
     }
@@ -36,12 +42,13 @@ public class TextraFontTest extends ApplicationAdapter {
         for(TextureRegion parent : font.parents){
             parent.getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         }
-        font = new Font("Cozette.fnt", "Cozette.png", false, 2, 2, 0, 0).scale(2f, 2f);
+//        font = new Font("Cozette.fnt", "Cozette.png", false, 2, 2, 0, 0).scale(2f, 2f);
 //        font = new Font("AStarry.fnt", false, 1, 1, -1, -1);//.scale(2f, 2f);
 //        font = new Font("Iosevka-Slab-msdf.fnt", "Iosevka-Slab-msdf.png", true, 3f, 6, -4f, -7).scale(0.75f, 0.75f);
-//        font = new Font("Inconsolata-LGC-Custom-msdf.fnt", "Inconsolata-LGC-Custom-msdf.png", true, 5f, 1f, -10f, -8f).scaleTo(16f, 36f);
-//        TextureAtlas atlas = new TextureAtlas(Gdx.files.internal("dawnlike/Dawnlike.atlas"), Gdx.files.internal("dawnlike"));
+//        font = new Font("Inconsolata-LGC-Custom-msdf.fnt", "Inconsolata-LGC-Custom-msdf.png", true, 5f, 1f, -10f, -8f).scaleTo(16f, 28f);
+        TextureAtlas atlas = new TextureAtlas(Gdx.files.internal("dawnlike/Dawnlike.atlas"), Gdx.files.internal("dawnlike"));
 //        font = new Font("dawnlike/PlainAndSimplePlus.fnt", atlas.findRegion("PlainAndSimplePlus"), false, 0, 0, 2, 2);
+        font = new Font(new BitmapFont(Gdx.files.internal("dawnlike/PlainAndSimplePlus.fnt"), atlas.findRegion("PlainAndSimplePlus")), false, 0, 0, 2, 2);
 
         int line = 0;
         font.markup("[#22BB22FF]Hello, [~]World[~]Universe[.]$[=]$[^]$[^]!"
