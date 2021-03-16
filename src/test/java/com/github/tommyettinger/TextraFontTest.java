@@ -36,12 +36,12 @@ public class TextraFontTest extends ApplicationAdapter {
         for(TextureRegion parent : font.parents){
             parent.getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         }
-//        font = new TextraFont("Cozette.fnt", "Cozette.png", false, 1, 1, -1, -1);//.scale(2f, 2f);
-//        font = new TextraFont("AStarry.fnt", false, 1, 1, -1, -1);//.scale(2f, 2f);
-//        font = new TextraFont("Iosevka-Slab-msdf.fnt", "Iosevka-Slab-msdf.png", true, 3f, 6, -4f, -7).scale(0.75f, 0.75f);
-//        font = new TextraFont("Inconsolata-LGC-Custom-msdf.fnt", "Inconsolata-LGC-Custom-msdf.png", true, 5f, 1f, -10f, -8f).scaleTo(16f, 36f);
+        font = new Font("Cozette.fnt", "Cozette.png", false, 2, 2, 0, 0).scale(2f, 2f);
+//        font = new Font("AStarry.fnt", false, 1, 1, -1, -1);//.scale(2f, 2f);
+//        font = new Font("Iosevka-Slab-msdf.fnt", "Iosevka-Slab-msdf.png", true, 3f, 6, -4f, -7).scale(0.75f, 0.75f);
+//        font = new Font("Inconsolata-LGC-Custom-msdf.fnt", "Inconsolata-LGC-Custom-msdf.png", true, 5f, 1f, -10f, -8f).scaleTo(16f, 36f);
 //        TextureAtlas atlas = new TextureAtlas(Gdx.files.internal("dawnlike/Dawnlike.atlas"), Gdx.files.internal("dawnlike"));
-//        font = new TextraFont("dawnlike/PlainAndSimplePlus.fnt", atlas.findRegion("PlainAndSimplePlus"), false, 0, 0, 2, 2);
+//        font = new Font("dawnlike/PlainAndSimplePlus.fnt", atlas.findRegion("PlainAndSimplePlus"), false, 0, 0, 2, 2);
 
         int line = 0;
         font.markup("[#22BB22FF]Hello, [~]World[~]Universe[.]$[=]$[^]$[^]!"
@@ -70,11 +70,11 @@ public class TextraFontTest extends ApplicationAdapter {
     public void render() {
         Gdx.gl.glClearColor(0.25f, 0.4f, 0.2f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        float x = 800, y = font.cellHeight * layout.lines();
+        float x = 800, y = font.cellHeight * (layout.lines() - 1);
         batch.begin();
         font.enableShader(batch);
 
-        font.drawGlyphs(batch, layout, x, y -= font.cellHeight, Align.right);
+        font.drawGlyphs(batch, layout, x, y, Align.right);
 
         batch.end();
         Gdx.graphics.setTitle(Gdx.graphics.getFramesPerSecond() + " FPS");

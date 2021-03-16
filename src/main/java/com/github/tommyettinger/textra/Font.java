@@ -13,21 +13,31 @@ import com.badlogic.gdx.utils.*;
 
 import java.util.BitSet;
 
-public class Font {
+public class Font implements Disposable {
+
     /**
      * Describes the region of a glyph in a larger TextureRegion, carrying a little more info about the offsets that
      * apply to where the glyph is rendered.
      */
     public static class GlyphRegion extends TextureRegion {
-        /** The offset from the left of the original image to the left of the packed image, after whitespace was removed for
-         * packing. */
+        /**
+         * The offset from the left of the original image to the left of the packed image, after whitespace was removed
+         * for packing.
+         */
         public float offsetX;
 
-        /** The offset from the bottom of the original image to the bottom of the packed image, after whitespace was removed for
-         * packing. */
+        /**
+         * The offset from the bottom of the original image to the bottom of the packed image, after whitespace was
+         * removed for packing.
+         */
         public float offsetY;
 
+        /**
+         * How far to move the "cursor" to the right after drawing this GlyphRegion. Uses the same unit as
+         * {@link #offsetX}.
+         */
         public float xAdvance;
+
         /**
          * Creates a GlyphRegion from a parent TextureRegion (typically from an atlas), along with the lower-left x and
          * y coordinates, the width, and the height of the GlyphRegion.
@@ -41,6 +51,10 @@ public class Font {
             super(textureRegion, x, y, width, height);
         }
 
+        /**
+         * Copies another GlyphRegion.
+         * @param other the other GlyphRegion to copy
+         */
         public GlyphRegion(GlyphRegion other) {
             super(other);
             offsetX = other.offsetX;
@@ -57,7 +71,10 @@ public class Font {
         @Override
         public void flip (boolean x, boolean y) {
             super.flip(x, y);
-            if (x) offsetX = -offsetX;
+            if (x) {
+                offsetX = -offsetX;
+                xAdvance = -xAdvance; // TODO: not sure if this is the expected behavior...
+            }
             if (y) offsetY = -offsetY;
         }
     }
@@ -731,6 +748,13 @@ public class Font {
         return drawn;
     }
 
+    /**
+     * Gets the distance to advance the cursor after drawing {@code glyph}, scaled by {@link #scaleX} as if drawing.
+     * This handles monospaced fonts correctly and ensures that for variable-width fonts, subscript, midscript, and
+     * superscript halve the advance amount. This does not consider kerning, if the font has it.
+     * @param glyph a long encoding the color, style information, and char of a glyph, as from a {@link Line}
+     * @return the (possibly non-integer) amount to advance the cursor when you draw the given glyph, not counting kerning
+     */
     public float xAdvance(long glyph){
         GlyphRegion tr = mapping.get((char) glyph);
         if (tr == null) return 0f;
@@ -738,7 +762,7 @@ public class Font {
         if (isMono) {
             changedW += tr.offsetX * scaleX;
         }
-        if((glyph & SUPERSCRIPT) != 0L){
+        else if((glyph & SUPERSCRIPT) != 0L){
             changedW *= 0.5f;
         }
         return changedW;
@@ -920,12 +944,14 @@ public class Font {
     }
 
     /**
-     * Reads markup from text, along with the chars to receive markup, processes it, and appends into appendTo as a
-     * series of {@code long} glyphs. Parses an extension of libGDX markup and uses it to determine color, size,
+     * Reads markup from text, along with the chars to receive markup, processes it, and appends into appendTo, which is
+     * a {@link Layout} holding one or more {@link Line}s. A common way of getting a Layout is with
+     * {@code Pools.obtain(Layout.class)}; you can free the Layout when you are done using it with
+     * {@link Pools#free(Object)}. This parses an extension of libGDX markup and uses it to determine color, size,
      * position, shape, strikethrough, underline, and case of the given CharSequence. The text drawn will start as
-     * white, with the normal size as by {@link #cellWidth} and {@link #cellHeight}, normal case, and without bold,
-     * italic, superscript, subscript, strikethrough, or underline. Markup starts with {@code [}; the next non-letter
-     * character determines what that piece of markup toggles. Markup this knows:
+     * white, with the normal size as determined by the font's metrics and scale ({@link #scaleX} and {@link #scaleY}),
+     * normal case, and without bold, italic, superscript, subscript, strikethrough, or underline. Markup starts with
+     * {@code [}; the next character determines what that piece of markup toggles. Markup this knows:
      * <ul>
      *     <li>{@code [[} escapes a literal left bracket.</li>
      *     <li>{@code []} clears all markup to the initial state without any applied.</li>
@@ -945,7 +971,7 @@ public class Font {
      * </ul>
      * You can render {@code appendTo} using {@link #drawGlyphs(Batch, Layout, float, float)}.
      * @param text text with markup
-     * @param appendTo a LongArray that stores color, font formatting, and a char in each long
+     * @param appendTo a Layout that stores one or more Line objects, carrying color, style, chars, and size
      * @return appendTo, for chaining
      */
     public Layout markup(String text, Layout appendTo) {
@@ -962,7 +988,6 @@ public class Font {
         }
         appendTo.peekLine().height = cellHeight;
         int kern = -1;
-        float amt = 0f;
         for (int i = 0, n = text.length(); i < n; i++) {
             if(text.charAt(i) == '['){
                 if(++i < n && (c = text.charAt(i)) != '['){
@@ -1040,32 +1065,48 @@ public class Font {
                     i += len;
                 }
                 else {
-                    kern = kern << 16 | (int) ((current | '[') & 0xFFFF);
-                    appendTo.peekLine().width += xAdvance(current | '[') + kerning.get(kern, 0) * scaleX;
+                    if (kerning == null) {
+                        appendTo.peekLine().width += xAdvance(current | '[');
+                    } else {
+                        kern = kern << 16 | (int) ((current | '[') & 0xFFFF);
+                        appendTo.peekLine().width += xAdvance(current | '[') + kerning.get(kern, 0) * scaleX;
+                    }
                     appendTo.add(current | '[');
                 }
             } else {
                 char ch = text.charAt(i);
-                if(isLowerCase(ch)) {
-                    if((capitalize && !previousWasLetter) || capsLock) {
+                if (isLowerCase(ch)) {
+                    if ((capitalize && !previousWasLetter) || capsLock) {
                         ch = Character.toUpperCase(ch);
                     }
                     previousWasLetter = true;
-                }
-                else if(isUpperCase(ch)) {
-                    if((capitalize && previousWasLetter) || lowerCase) {
+                } else if (isUpperCase(ch)) {
+                    if ((capitalize && previousWasLetter) || lowerCase) {
                         ch = Character.toLowerCase(ch);
                     }
                     previousWasLetter = true;
-                }
-                else {
+                } else {
                     previousWasLetter = false;
                 }
-                kern = kern << 16 | (int) ((current | ch) & 0xFFFF);
-                appendTo.peekLine().width += xAdvance(current | ch) + kerning.get(kern, 0) * scaleX;
+                if (kerning == null) {
+                    appendTo.peekLine().width += xAdvance(current | ch);
+                } else {
+                    kern = kern << 16 | (int) ((current | ch) & 0xFFFF);
+                    appendTo.peekLine().width += xAdvance(current | ch) + kerning.get(kern, 0) * scaleX;
+                }
                 appendTo.add(current | ch);
             }
         }
         return appendTo;
+    }
+
+    /**
+     * Releases all resources of this object.
+     */
+    @Override
+    public void dispose() {
+        Pools.free(tempLayout);
+        if(shader != null)
+            shader.dispose();
     }
 }
