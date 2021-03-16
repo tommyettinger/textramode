@@ -493,10 +493,14 @@ public class Font implements Disposable {
             minWidth = Math.min(minWidth, a);
             cellWidth = Math.max(a, cellWidth);
             cellHeight = Math.max(h, cellHeight);
-            if(c == 10)
-                a = 0;
             GlyphRegion gr = new GlyphRegion(parents.get(p), x, y, w, h);
-            gr.offsetX = xo;
+            if(c == 10)
+            {
+                a = 0;
+                gr.offsetX = 0;
+            }
+            else
+                gr.offsetX = xo;
             gr.offsetY = yo;
             gr.xAdvance = a;
             mapping.put(c, gr);
