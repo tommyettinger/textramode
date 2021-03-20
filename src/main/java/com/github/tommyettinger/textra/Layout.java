@@ -7,6 +7,7 @@ import com.badlogic.gdx.utils.Pools;
 public class Layout implements Pool.Poolable {
     protected Font font;
     protected final Array<Line> lines = new Array<>(true, 8, Line.class);
+    protected float targetWidth = 0f;
 
     public Layout() {
     }
@@ -79,12 +80,23 @@ public class Layout implements Pool.Poolable {
         return line;
     }
 
+    public float getTargetWidth() {
+        return targetWidth;
+    }
+
+    public Layout setTargetWidth(float targetWidth) {
+        // we may want this to lay existing lines out again if the width changed.
+        this.targetWidth = targetWidth;
+        return this;
+    }
+
     /**
      * Resets the object for reuse. The font is nulled, but the lines are freed, cleared, and then one blank line is
      * re-added to lines so it can be used normally later.
      */
     @Override
     public void reset() {
+        targetWidth = 0f;
         font = null;
         Pools.freeAll(lines);
         lines.clear();

@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.utils.*;
 
+import java.util.Arrays;
 import java.util.BitSet;
 
 public class Font implements Disposable {
@@ -101,6 +102,32 @@ public class Font implements Disposable {
 
     private final float[] vertices = new float[20];
     private final Layout tempLayout = Pools.obtain(Layout.class);
+    /**
+     * Must be in lexicographic order because we use {@link java.util.Arrays#binarySearch(char[], int, int, char)} to
+     * verify if a char is present.
+     */
+    private final CharArray breakChars = CharArray.with(
+            '\t',    // horizontal tab
+            ' ',     // space
+            '-',     // ASCII hyphen-minus
+            '\u00AD',// soft hyphen
+            '\u2000',// Unicode space
+            '\u2001',// Unicode space
+            '\u2002',// Unicode space
+            '\u2003',// Unicode space
+            '\u2004',// Unicode space
+            '\u2005',// Unicode space
+            '\u2006',// Unicode space
+            '\u2008',// Unicode space
+            '\u2009',// Unicode space
+            '\u200A',// Unicode space (hair-width)
+            '\u200B',// Unicode space (zero-width)
+            '\u2010',// hyphen (not minus)
+            '\u2012',// figure dash
+            '\u2013',// en dash
+            '\u2014',// em dash
+            '\u2027' // hyphenation point
+    );
 
     public static final String vertexShader = "attribute vec4 " + ShaderProgram.POSITION_ATTRIBUTE + ";\n"
             + "attribute vec4 " + ShaderProgram.COLOR_ATTRIBUTE + ";\n"
@@ -996,6 +1023,7 @@ public class Font implements Disposable {
             appendTo.font(this);
         }
         appendTo.peekLine().height = cellHeight;
+        float targetWidth = appendTo.getTargetWidth();
         int kern = -1;
         for (int i = 0, n = text.length(); i < n; i++) {
             if(text.charAt(i) == '['){
@@ -1074,13 +1102,46 @@ public class Font implements Disposable {
                     i += len;
                 }
                 else {
+                    float w;
                     if (kerning == null) {
-                        appendTo.peekLine().width += xAdvance(current | '[');
+                        w = (appendTo.peekLine().width += xAdvance(current | '['));
                     } else {
-                        kern = kern << 16 | (int) ((current | '[') & 0xFFFF);
-                        appendTo.peekLine().width += xAdvance(current | '[') + kerning.get(kern, 0) * scaleX;
+                        kern = kern << 16 | '[';
+                        w = (appendTo.peekLine().width += xAdvance(current | '[') + kerning.get(kern, 0) * scaleX);
                     }
                     appendTo.add(current | '[');
+                    if(w > targetWidth){
+                        Line earlier = appendTo.peekLine();
+                        Line later = appendTo.pushLine();
+                        for (int j = earlier.glyphs.size - 2; j >= 0; j--) {
+                            if(Arrays.binarySearch(breakChars.items, 0, breakChars.size, (char) earlier.glyphs.get(j)) >= 0) {
+                                float change = 0f;
+                                long curr;
+                                if(kerning == null){
+                                    for (int k = j + 1; k < earlier.glyphs.size; k++) {
+                                        change += xAdvance(curr = earlier.glyphs.get(k));
+                                        appendTo.add(curr);
+                                    }
+                                    later.width = change;
+                                } else {
+                                    int k2 = ((int)earlier.glyphs.get(j) & 0xFFFF), k3 = -1;
+                                    float changeNext = 0f, adv;
+                                    for (int k = j + 1; k < earlier.glyphs.size; k++) {
+                                        curr = earlier.glyphs.get(k);
+                                        k2 = k2 << 16 | (char)curr;
+                                        k3 = k3 << 16 | (char)curr;
+                                        adv = xAdvance(curr);
+                                        change += adv + kerning.get(k2, 0) * scaleX;
+                                        changeNext += adv + kerning.get(k3, 0) * scaleX;
+                                        appendTo.add(curr);
+                                    }
+                                    later.width = changeNext;
+                                }
+                                earlier.width -= change;
+                                break;
+                            }
+                        }
+                    }
                 }
             } else {
                 char ch = text.charAt(i);
@@ -1097,13 +1158,46 @@ public class Font implements Disposable {
                 } else {
                     previousWasLetter = false;
                 }
+                float w;
                 if (kerning == null) {
-                    appendTo.peekLine().width += xAdvance(current | ch);
+                    w = (appendTo.peekLine().width += xAdvance(current | ch));
                 } else {
                     kern = kern << 16 | (int) ((current | ch) & 0xFFFF);
-                    appendTo.peekLine().width += xAdvance(current | ch) + kerning.get(kern, 0) * scaleX;
+                    w = (appendTo.peekLine().width += xAdvance(current | ch) + kerning.get(kern, 0) * scaleX);
                 }
                 appendTo.add(current | ch);
+                if(w > targetWidth){
+                    Line earlier = appendTo.peekLine();
+                    Line later = appendTo.pushLine();
+                    for (int j = earlier.glyphs.size - 2; j >= 0; j--) {
+                        if(Arrays.binarySearch(breakChars.items, 0, breakChars.size, (char) earlier.glyphs.get(j)) >= 0) {
+                            float change = 0f;
+                            long curr;
+                            if(kerning == null){
+                                for (int k = j + 1; k < earlier.glyphs.size; k++) {
+                                    change += xAdvance(curr = earlier.glyphs.get(k));
+                                    appendTo.add(curr);
+                                }
+                                later.width = change;
+                            } else {
+                                int k2 = ((int)earlier.glyphs.get(j) & 0xFFFF), k3 = -1;
+                                float changeNext = 0f, adv;
+                                for (int k = j + 1; k < earlier.glyphs.size; k++) {
+                                    curr = earlier.glyphs.get(k);
+                                    k2 = k2 << 16 | (char)curr;
+                                    k3 = k3 << 16 | (char)curr;
+                                    adv = xAdvance(curr);
+                                    change += adv + kerning.get(k2, 0) * scaleX;
+                                    changeNext += adv + kerning.get(k3, 0) * scaleX;
+                                    appendTo.add(curr);
+                                }
+                                later.width = changeNext;
+                            }
+                            earlier.width -= change;
+                            break;
+                        }
+                    }
+                }
             }
         }
         return appendTo;

@@ -20,7 +20,7 @@ public class TextraFontTest extends ApplicationAdapter {
 
     Font font;
     SpriteBatch batch;
-    Layout layout = new Layout();
+    Layout layout = new Layout().setTargetWidth(300);
 
     public static void main(String[] args){
         Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
@@ -38,7 +38,8 @@ public class TextraFontTest extends ApplicationAdapter {
     public void create() {
         Gdx.app.setLogLevel(Application.LOG_DEBUG);
         batch = new SpriteBatch();
-        font = new Font("Gentium.fnt", false, -1f, 0f, -4.5f, 0f).scale(0.5f, 0.5f);
+        font = new Font(new BitmapFont(Gdx.files.internal("Gentium.fnt")), false, -1f, 0f, -4.5f, 0f).scale(0.375f, 0.375f);
+//        font = new Font("Gentium.fnt", false, -1f, 0f, -4.5f, 0f).scale(0.5f, 0.5f);
         for(TextureRegion parent : font.parents){
             parent.getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         }
@@ -46,9 +47,12 @@ public class TextraFontTest extends ApplicationAdapter {
 //        font = new Font("AStarry.fnt", false, 1, 1, -1, -1);//.scale(2f, 2f);
 //        font = new Font("Iosevka-Slab-msdf.fnt", "Iosevka-Slab-msdf.png", true, 3f, 6, -4f, -7).scale(0.75f, 0.75f);
 //        font = new Font("Inconsolata-LGC-Custom-msdf.fnt", "Inconsolata-LGC-Custom-msdf.png", true, 5f, 1f, -10f, -8f).scaleTo(16f, 28f);
-        TextureAtlas atlas = new TextureAtlas(Gdx.files.internal("dawnlike/Dawnlike.atlas"), Gdx.files.internal("dawnlike"));
+
+//        TextureAtlas atlas = new TextureAtlas(Gdx.files.internal("dawnlike/Dawnlike.atlas"), Gdx.files.internal("dawnlike"));
 //        font = new Font("dawnlike/PlainAndSimplePlus.fnt", atlas.findRegion("PlainAndSimplePlus"), false, 0, 0, 2, 2);
-        font = new Font(new BitmapFont(Gdx.files.internal("dawnlike/PlainAndSimplePlus.fnt"), atlas.findRegion("PlainAndSimplePlus")), false, 0, 0, 2, 2);
+
+//        TextureAtlas atlas = new TextureAtlas(Gdx.files.internal("dawnlike/Dawnlike.atlas"), Gdx.files.internal("dawnlike"));
+//        font = new Font(new BitmapFont(Gdx.files.internal("dawnlike/PlainAndSimplePlus.fnt"), atlas.findRegion("PlainAndSimplePlus")), false, 0, 0, 2, 2);
 
         int line = 0;
         font.markup("[#22BB22FF]Hello, [~]World[~]Universe[.]$[=]$[^]$[^]!"
@@ -75,7 +79,7 @@ public class TextraFontTest extends ApplicationAdapter {
 
     @Override
     public void render() {
-        Gdx.gl.glClearColor(0.25f, 0.4f, 0.2f, 1);
+        Gdx.gl.glClearColor(0.24f, 0.33f, 0.2f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         float x = 800, y = font.cellHeight * (layout.lines() - 1);
         batch.begin();
