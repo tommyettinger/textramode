@@ -1135,6 +1135,7 @@ public class Font implements Disposable {
                                         changeNext += adv + kerning.get(k3, 0) * scaleX;
                                         appendTo.add(curr);
                                     }
+                                    earlier.glyphs.truncate(j + 1);
                                     later.width = changeNext;
                                 }
                                 earlier.width -= change;
@@ -1191,6 +1192,7 @@ public class Font implements Disposable {
                                     changeNext += adv + kerning.get(k3, 0) * scaleX;
                                     appendTo.add(curr);
                                 }
+                                earlier.glyphs.truncate(j + 1);
                                 later.width = changeNext;
                             }
                             earlier.width -= change;
