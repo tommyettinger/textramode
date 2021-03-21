@@ -57,7 +57,7 @@ public class TextraFontTest extends ApplicationAdapter {
         int line = 0;
         font.markup("[#22BB22FF]Hello, [~]World[~]Universe[.]$[=]$[^]$[^]!"
                 + "\nThe [RED]MAW[] of the [/][CYAN]wendigo[/] (wendigo)[] [*]appears[*]!"
-                + "\nThe [_][GRAY]BLADE[] of [*][/][YELLOW]KINGS[] strikes!"
+                + "\nThe [_][GRAY]BLADE[] of [*][/][YELLOW]DYNAST-KINGS[] strikes!"
                 + "\n[_][;]Each cap, [,]All lower, [!]Caps lock[], [?]Unknown[]?"
                 + "\n[GOLD]phi[] = (1 + 5[^]0.5[^]) * 0.5"
                 + "\n[ORANGE][*]Mister Bond[*]! This is my right-hand man, Nosejob."

@@ -129,6 +129,26 @@ public class Font implements Disposable {
             '\u2027' // hyphenation point
     );
 
+    /**
+     * Must be in lexicographic order because we use {@link java.util.Arrays#binarySearch(char[], int, int, char)} to
+     * verify if a char is present.
+     */
+    private final CharArray spaceChars = CharArray.with(
+            '\t',    // horizontal tab
+            ' ',     // space
+            '\u2000',// Unicode space
+            '\u2001',// Unicode space
+            '\u2002',// Unicode space
+            '\u2003',// Unicode space
+            '\u2004',// Unicode space
+            '\u2005',// Unicode space
+            '\u2006',// Unicode space
+            '\u2008',// Unicode space
+            '\u2009',// Unicode space
+            '\u200A',// Unicode space (hair-width)
+            '\u200B' // Unicode space (zero-width)
+    );
+
     public static final String vertexShader = "attribute vec4 " + ShaderProgram.POSITION_ATTRIBUTE + ";\n"
             + "attribute vec4 " + ShaderProgram.COLOR_ATTRIBUTE + ";\n"
             + "attribute vec2 " + ShaderProgram.TEXCOORD_ATTRIBUTE + "0;\n"
@@ -1115,25 +1135,37 @@ public class Font implements Disposable {
                         Line later = appendTo.pushLine();
                         for (int j = earlier.glyphs.size - 2; j >= 0; j--) {
                             if(Arrays.binarySearch(breakChars.items, 0, breakChars.size, (char) earlier.glyphs.get(j)) >= 0) {
-                                float change = 0f;
+                                int leading = 0;
+                                while (Arrays.binarySearch(spaceChars.items, 0, spaceChars.size, (char) earlier.glyphs.get(j)) >= 0)
+                                {
+                                    ++leading;
+                                    --j;
+                                }
+                                float change = 0f, changeNext = 0f;
                                 long curr;
                                 if(kerning == null){
                                     for (int k = j + 1; k < earlier.glyphs.size; k++) {
-                                        change += xAdvance(curr = earlier.glyphs.get(k));
-                                        appendTo.add(curr);
+                                        float adv = xAdvance(curr = earlier.glyphs.get(k));
+                                        change += adv;
+                                        if(--leading < 0)
+                                        {
+                                            appendTo.add(curr);
+                                            changeNext += adv;
+                                        }
                                     }
-                                    later.width = change;
+                                    later.width = changeNext;
                                 } else {
                                     int k2 = ((int)earlier.glyphs.get(j) & 0xFFFF), k3 = -1;
-                                    float changeNext = 0f, adv;
                                     for (int k = j + 1; k < earlier.glyphs.size; k++) {
                                         curr = earlier.glyphs.get(k);
                                         k2 = k2 << 16 | (char)curr;
-                                        k3 = k3 << 16 | (char)curr;
-                                        adv = xAdvance(curr);
+                                        float adv = xAdvance(curr);
                                         change += adv + kerning.get(k2, 0) * scaleX;
-                                        changeNext += adv + kerning.get(k3, 0) * scaleX;
-                                        appendTo.add(curr);
+                                        if(--leading < 0) {
+                                            k3 = k3 << 16 | (char) curr;
+                                            changeNext += adv + kerning.get(k3, 0) * scaleX;
+                                            appendTo.add(curr);
+                                        }
                                     }
                                     earlier.glyphs.truncate(j + 1);
                                     later.width = changeNext;
@@ -1172,25 +1204,37 @@ public class Font implements Disposable {
                     Line later = appendTo.pushLine();
                     for (int j = earlier.glyphs.size - 2; j >= 0; j--) {
                         if(Arrays.binarySearch(breakChars.items, 0, breakChars.size, (char) earlier.glyphs.get(j)) >= 0) {
-                            float change = 0f;
+                            int leading = 0;
+                            while (Arrays.binarySearch(spaceChars.items, 0, spaceChars.size, (char) earlier.glyphs.get(j)) >= 0)
+                            {
+                                ++leading;
+                                --j;
+                            }
+                            float change = 0f, changeNext = 0f;
                             long curr;
                             if(kerning == null){
                                 for (int k = j + 1; k < earlier.glyphs.size; k++) {
-                                    change += xAdvance(curr = earlier.glyphs.get(k));
-                                    appendTo.add(curr);
+                                    float adv = xAdvance(curr = earlier.glyphs.get(k));
+                                    change += adv;
+                                    if(--leading < 0)
+                                    {
+                                        appendTo.add(curr);
+                                        changeNext += adv;
+                                    }
                                 }
-                                later.width = change;
+                                later.width = changeNext;
                             } else {
                                 int k2 = ((int)earlier.glyphs.get(j) & 0xFFFF), k3 = -1;
-                                float changeNext = 0f, adv;
                                 for (int k = j + 1; k < earlier.glyphs.size; k++) {
                                     curr = earlier.glyphs.get(k);
                                     k2 = k2 << 16 | (char)curr;
-                                    k3 = k3 << 16 | (char)curr;
-                                    adv = xAdvance(curr);
+                                    float adv = xAdvance(curr);
                                     change += adv + kerning.get(k2, 0) * scaleX;
-                                    changeNext += adv + kerning.get(k3, 0) * scaleX;
-                                    appendTo.add(curr);
+                                    if(--leading < 0) {
+                                        k3 = k3 << 16 | (char) curr;
+                                        changeNext += adv + kerning.get(k3, 0) * scaleX;
+                                        appendTo.add(curr);
+                                    }
                                 }
                                 earlier.glyphs.truncate(j + 1);
                                 later.width = changeNext;
