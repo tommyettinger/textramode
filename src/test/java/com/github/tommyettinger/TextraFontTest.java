@@ -20,7 +20,7 @@ public class TextraFontTest extends ApplicationAdapter {
 
     Font font;
     SpriteBatch batch;
-    Layout layout = new Layout().setTargetWidth(300);
+    Layout layout = new Layout().setTargetWidth(700);
 
     public static void main(String[] args){
         Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
@@ -38,10 +38,16 @@ public class TextraFontTest extends ApplicationAdapter {
     public void create() {
         Gdx.app.setLogLevel(Application.LOG_DEBUG);
         batch = new SpriteBatch();
-        font = new Font(new BitmapFont(Gdx.files.internal("Gentium.fnt")), false, -1f, 0f, -4.5f, 0f).scale(0.375f, 0.375f);
-//        font = new Font("Gentium.fnt", false, -1f, 0f, -4.5f, 0f).scale(0.5f, 0.5f);
+//        font = new Font(new BitmapFont(Gdx.files.internal("Gentium.fnt")), false, -1f, 0f, -4.5f, 0f).scale(0.5f, 0.5f);
+////        font = new Font("Gentium.fnt", false, -1f, 0f, -4.5f, 0f).scale(0.5f, 0.5f);
+//        for(TextureRegion parent : font.parents){
+//            parent.getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+//        }
+        font = new Font("LibertinusSerif.fnt",
+                new TextureRegion(new Texture(Gdx.files.internal("LibertinusSerif.png"), true)), false, 0, 0, 0, 0)
+        .scale(0.3f, 0.25f);
         for(TextureRegion parent : font.parents){
-            parent.getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+            parent.getTexture().setFilter(Texture.TextureFilter.MipMapLinearNearest, Texture.TextureFilter.MipMapLinearNearest);
         }
 //        font = new Font("Cozette.fnt", "Cozette.png", false, 2, 2, 0, 0).scale(2f, 2f);
 //        font = new Font("AStarry.fnt", false, 1, 1, -1, -1);//.scale(2f, 2f);
@@ -54,15 +60,18 @@ public class TextraFontTest extends ApplicationAdapter {
 //        TextureAtlas atlas = new TextureAtlas(Gdx.files.internal("dawnlike/Dawnlike.atlas"), Gdx.files.internal("dawnlike"));
 //        font = new Font(new BitmapFont(Gdx.files.internal("dawnlike/PlainAndSimplePlus.fnt"), atlas.findRegion("PlainAndSimplePlus")), false, 0, 0, 2, 2);
 
-        int line = 0;
         font.markup("[#22BB22FF]Hello, [~]World[~]Universe[.]$[=]$[^]$[^]!"
-                + "\nThe [RED]MAW[] of the [/][CYAN]wendigo[/] (wendigo)[] [*]appears[*]!"
+                + "\nThe [*][RED]MAW[] of the [/][CYAN]wendigo[/] (wendigo)[] [*]appears[*]!"
                 + "\nThe [_][GRAY]BLADE[] of [*][/][YELLOW]DYNAST-KINGS[] strikes!"
                 + "\n[_][;]Each cap, [,]All lower, [!]Caps lock[], [?]Unknown[]?"
                 + "\n[GOLD]phi[] = (1 + 5[^]0.5[^]) * 0.5"
                 + "\n[ORANGE][*]Mister Bond[*]! This is my right-hand man, Nosejob."
                 + "\nPchnąć[] w tę łódź [TAN]jeża[] lub ośm skrzyń [PURPLE]fig[]."
                 , layout);
+        layout.clear();
+        font.markup("Good day to you all, sirs and madams!"
+                + "\n[*]Водяно́й[] — в славянской мифологии дух, обитающий в воде, хозяин вод[^][[2][]."
+                + "\nВоплощение стихии воды как отрицательного и опасного начала[^][[3][].", layout);
         System.out.println(layout);
 
 //        font.markup("[#22BB22FF]Hello, [~]World[~]Universe[.]$[=]$[^]$[^]!", layouts[line++] = new TextraLayout());
