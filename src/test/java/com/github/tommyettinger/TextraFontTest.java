@@ -43,15 +43,16 @@ public class TextraFontTest extends ApplicationAdapter {
 //        for(TextureRegion parent : font.parents){
 //            parent.getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
 //        }
-        font = new Font("LibertinusSerif.fnt",
-                new TextureRegion(new Texture(Gdx.files.internal("LibertinusSerif.png"), true)), false, 0, 0, 0, 0)
-        .scale(0.3f, 0.25f);
-        for(TextureRegion parent : font.parents){
-            parent.getTexture().setFilter(Texture.TextureFilter.MipMapLinearNearest, Texture.TextureFilter.MipMapLinearNearest);
-        }
+//        font = new Font("LibertinusSerif.fnt",
+//                new TextureRegion(new Texture(Gdx.files.internal("LibertinusSerif.png"), true)), false, 0, 0, 0, 0)
+//        .scale(0.25f, 0.25f);
+//        for(TextureRegion parent : font.parents){
+//            parent.getTexture().setFilter(Texture.TextureFilter.MipMapLinearNearest, Texture.TextureFilter.MipMapLinearNearest);
+//        }
 //        font = new Font("Cozette.fnt", "Cozette.png", false, 2, 2, 0, 0).scale(2f, 2f);
 //        font = new Font("AStarry.fnt", false, 1, 1, -1, -1);//.scale(2f, 2f);
 //        font = new Font("Iosevka-Slab-msdf.fnt", "Iosevka-Slab-msdf.png", true, 3f, 6, -4f, -7).scale(0.75f, 0.75f);
+        font = new Font("LibertinusSerif-Regular-msdf.fnt", "LibertinusSerif-Regular-msdf.png", true, 6f, 1f, -1f, -1f).scale(1.5f, 1.5f);
 //        font = new Font("Inconsolata-LGC-Custom-msdf.fnt", "Inconsolata-LGC-Custom-msdf.png", true, 5f, 1f, -10f, -8f).scaleTo(16f, 28f);
 
 //        TextureAtlas atlas = new TextureAtlas(Gdx.files.internal("dawnlike/Dawnlike.atlas"), Gdx.files.internal("dawnlike"));
@@ -61,17 +62,17 @@ public class TextraFontTest extends ApplicationAdapter {
 //        font = new Font(new BitmapFont(Gdx.files.internal("dawnlike/PlainAndSimplePlus.fnt"), atlas.findRegion("PlainAndSimplePlus")), false, 0, 0, 2, 2);
 
         font.markup("[#22BB22FF]Hello, [~]World[~]Universe[.]$[=]$[^]$[^]!"
-                + "\nThe [*][RED]MAW[] of the [/][CYAN]wendigo[/] (wendigo)[] [*]appears[*]!"
+                + "\nThe [RED]MAW[] of the [/][CYAN]wendigo[/] (wendigo)[] [*]appears[*]!"
                 + "\nThe [_][GRAY]BLADE[] of [*][/][YELLOW]DYNAST-KINGS[] strikes!"
                 + "\n[_][;]Each cap, [,]All lower, [!]Caps lock[], [?]Unknown[]?"
                 + "\n[GOLD]phi[] = (1 + 5[^]0.5[^]) * 0.5"
                 + "\n[ORANGE][*]Mister Bond[*]! This is my right-hand man, Nosejob."
                 + "\nPchnąć[] w tę łódź [TAN]jeża[] lub ośm skrzyń [PURPLE]fig[]."
                 , layout);
-        layout.clear();
-        font.markup("Good day to you all, sirs and madams!"
-                + "\n[*]Водяно́й[] — в славянской мифологии дух, обитающий в воде, хозяин вод[^][[2][]."
-                + "\nВоплощение стихии воды как отрицательного и опасного начала[^][[3][].", layout);
+//        layout.clear();
+//        font.markup("Good day to you all, sirs and madams!"
+//                + "\n[*]Водяно́й[] — в славянской мифологии дух, обитающий в воде, хозяин вод[^][[2][]."
+//                + "\nВоплощение стихии воды как отрицательного и опасного начала[^][[3][].", layout);
         System.out.println(layout);
 
 //        font.markup("[#22BB22FF]Hello, [~]World[~]Universe[.]$[=]$[^]$[^]!", layouts[line++] = new TextraLayout());

@@ -840,7 +840,7 @@ public class Font implements Disposable {
         float x0 = 0f, x1 = 0f, x2 = 0f, x3 = 0f;
         float y0 = 0f, y1 = 0f, y2 = 0f, y3 = 0f;
         float color = NumberUtils.intToFloatColor(Integer.reverseBytes((int) (glyph >>> 32)));
-        final float xPx = 1f, xPx2 = 2f;
+        final float xPx = 1f, xPx2 = 2f, iw = 1f / tex.getWidth(), ih = 1f / tex.getHeight();
         float u, v, u2, v2;
         u = tr.getU();
         v = tr.getV();
@@ -930,9 +930,9 @@ public class Font implements Disposable {
         if ((glyph & UNDERLINE) != 0L) {
             final GlyphRegion under = mapping.get('_');
             if (under != null) {
-                final float underU = under.getU() + (under.getU2() - under.getU()) * 0.375f,
+                final float underU = under.getU() + (under.xAdvance - under.offsetX) * iw * 0.25f,
                         underV = under.getV(),
-                        underU2 = under.getU2() - (under.getU2() - under.getU()) * 0.375f,
+                        underU2 = under.getU() + (under.xAdvance - under.offsetX) * iw * 0.75f,
                         underV2 = under.getV2(),
                         hu = under.getRegionHeight() * scaleY, yu = y + cellHeight - hu - under.offsetY * scaleY;
                 vertices[0] = x - xPx;
@@ -964,9 +964,9 @@ public class Font implements Disposable {
         if ((glyph & STRIKETHROUGH) != 0L) {
             final GlyphRegion dash = mapping.get('-');
             if (dash != null) {
-                final float dashU = dash.getU() + (dash.getU2() - dash.getU()) * 0.375f,
+                final float dashU = dash.getU() + (dash.xAdvance - dash.offsetX) * iw * 0.25f,
                         dashV = dash.getV(),
-                        dashU2 = dash.getU2() - (dash.getU2() - dash.getU()) * 0.375f,
+                        dashU2 = dash.getU() + (dash.xAdvance - dash.offsetX) * iw * 0.75f,
                         dashV2 = dash.getV2(),
                         hd = dash.getRegionHeight() * scaleY, yd = y + cellHeight - hd - dash.offsetY * scaleY;
 
