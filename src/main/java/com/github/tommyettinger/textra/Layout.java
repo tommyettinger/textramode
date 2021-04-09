@@ -8,6 +8,8 @@ import com.badlogic.gdx.utils.Pools;
 public class Layout implements Pool.Poolable {
     protected Font font;
     protected final Array<Line> lines = new Array<>(true, 8, Line.class);
+    protected int maxLines = Integer.MAX_VALUE;
+    protected String ellipsis = null;
     protected float targetWidth = 0f;
     protected float baseColor = Color.WHITE_FLOAT_BITS;
 
@@ -33,7 +35,21 @@ public class Layout implements Pool.Poolable {
     public Layout add(long glyph){
         if((glyph & 0xFFFFL) == 10L)
         {
-            lines.add(Pools.obtain(Line.class));
+            if(lines.size < maxLines)
+            {
+                lines.add(Pools.obtain(Line.class));
+            }
+            // TODO: The ellipsis behavior should be moved to Font, and affect glyphs added, not newlines.
+            else {
+                if(ellipsis != null){
+                    Line latest = lines.peek();
+                    for (int eLen = ellipsis.length(), i = 0, s = latest.glyphs.size - eLen;
+                         i < eLen; i++, s++) {
+                        if(s >= 0)
+                            latest.glyphs.set(s, (latest.glyphs.get(s) & 0xFFFFFFFFFFFF0000L) | ellipsis.charAt(i));
+                    }
+                }
+            }
         }
         else {
             lines.peek().glyphs.add(glyph);
