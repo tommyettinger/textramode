@@ -1034,8 +1034,9 @@ public class Font implements Disposable {
         boolean capitalize = false, previousWasLetter = false,
                 capsLock = false, lowerCase = false;
         int c;
-        long color = 0xFFFFFFFF00000000L;
-        final long COLOR_MASK = color;
+        final long COLOR_MASK = 0xFFFFFFFF00000000L;
+        long baseColor = Long.reverseBytes(NumberUtils.floatToIntColor(appendTo.getBaseColor())) & COLOR_MASK;
+        long color = baseColor;
         long current = color;
         if(appendTo.font == null || !appendTo.font.equals(this))
         {
@@ -1049,7 +1050,7 @@ public class Font implements Disposable {
             if(text.charAt(i) == '['){
                 if(++i < n && (c = text.charAt(i)) != '['){
                     if(c == ']'){
-                        color = 0xFFFFFFFF00000000L;
+                        color = baseColor;
                         current = color;
                         capitalize = false;
                         capsLock = false;
@@ -1109,13 +1110,13 @@ public class Font implements Disposable {
                             else if (len >= 9)
                                 color = longFromHex(text, i + 1, i + 9) << 32;
                             else
-                                color = COLOR_MASK;
+                                color = baseColor;
                             current = (current & ~COLOR_MASK) | color;
                             break;
                         default:
                             // attempt to look up a known Color name from Colors
                             Color gdxColor = Colors.get(text.substring(i, i + len));
-                            if (gdxColor == null) color = -1L << 32; // opaque white
+                            if (gdxColor == null) color = baseColor;
                             else color = (long) Color.rgba8888(gdxColor) << 32;
                             current = (current & ~COLOR_MASK) | color;
                     }

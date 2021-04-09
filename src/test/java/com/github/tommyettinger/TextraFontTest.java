@@ -5,6 +5,7 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -39,10 +40,10 @@ public class TextraFontTest extends ApplicationAdapter {
         Gdx.app.setLogLevel(Application.LOG_DEBUG);
         batch = new SpriteBatch();
 //        font = new Font(new BitmapFont(Gdx.files.internal("Gentium.fnt")), false, -1f, 0f, -4.5f, 0f).scale(0.5f, 0.5f);
-////        font = new Font("Gentium.fnt", false, -1f, 0f, -4.5f, 0f).scale(0.5f, 0.5f);
-//        for(TextureRegion parent : font.parents){
-//            parent.getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-//        }
+        font = new Font("Gentium.fnt", false, -1f, 0f, -4.5f, 0f).scale(0.5f, 0.5f);
+        for(TextureRegion parent : font.parents){
+            parent.getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+        }
 //        font = new Font("LibertinusSerif.fnt",
 //                new TextureRegion(new Texture(Gdx.files.internal("LibertinusSerif.png"), true)), false, 0, 0, 0, 0)
 //        .scale(0.25f, 0.25f);
@@ -52,7 +53,7 @@ public class TextraFontTest extends ApplicationAdapter {
 //        font = new Font("Cozette.fnt", "Cozette.png", false, 2, 2, 0, 0).scale(2f, 2f);
 //        font = new Font("AStarry.fnt", false, 1, 1, -1, -1);//.scale(2f, 2f);
 //        font = new Font("Iosevka-Slab-msdf.fnt", "Iosevka-Slab-msdf.png", true, 3f, 6, -4f, -7).scale(0.75f, 0.75f);
-        font = new Font("LibertinusSerif-Regular-msdf.fnt", "LibertinusSerif-Regular-msdf.png", true, 6f, 1f, -1f, -1f).scale(1.5f, 1.5f);
+//        font = new Font("LibertinusSerif-Regular-msdf.fnt", "LibertinusSerif-Regular-msdf.png", true, 6f, 1f, -1f, -1f).scale(1.5f, 1.5f);
 //        font = new Font("Inconsolata-LGC-Custom-msdf.fnt", "Inconsolata-LGC-Custom-msdf.png", true, 5f, 1f, -10f, -8f).scaleTo(16f, 28f);
 
 //        TextureAtlas atlas = new TextureAtlas(Gdx.files.internal("dawnlike/Dawnlike.atlas"), Gdx.files.internal("dawnlike"));
@@ -61,7 +62,9 @@ public class TextraFontTest extends ApplicationAdapter {
 //        TextureAtlas atlas = new TextureAtlas(Gdx.files.internal("dawnlike/Dawnlike.atlas"), Gdx.files.internal("dawnlike"));
 //        font = new Font(new BitmapFont(Gdx.files.internal("dawnlike/PlainAndSimplePlus.fnt"), atlas.findRegion("PlainAndSimplePlus")), false, 0, 0, 2, 2);
 
-        font.markup("[#22BB22FF]Hello, [~]World[~]Universe[.]$[=]$[^]$[^]!"
+        layout.setBaseColor(Color.SLATE);
+        font.markup("I wanna thank you all for coming here tonight..."
+                + "\n[#22BB22FF]Hello, [~]World[~]Universe[.]$[=]$[^]$[^]!"
                 + "\nThe [RED]MAW[] of the [/][CYAN]wendigo[/] (wendigo)[] [*]appears[*]!"
                 + "\nThe [_][GRAY]BLADE[] of [*][/][YELLOW]DYNAST-KINGS[] strikes!"
                 + "\n[_][;]Each cap, [,]All lower, [!]Caps lock[], [?]Unknown[]?"
@@ -71,8 +74,8 @@ public class TextraFontTest extends ApplicationAdapter {
                 , layout);
 //        layout.clear();
 //        font.markup("Good day to you all, sirs and madams!"
-//                + "\n[*]Водяно́й[] — в славянской мифологии дух, обитающий в воде, хозяин вод[^][[2][]."
-//                + "\nВоплощение стихии воды как отрицательного и опасного начала[^][[3][].", layout);
+//                + "\n[*]Водяно́й[] — в славянской мифологии дух, обитающий в воде, хозяин вод[^][BLUE][[2][]."
+//                + "\nВоплощение стихии воды как отрицательного и опасного начала[^][BLUE][[3][].", layout);
         System.out.println(layout);
 
 //        font.markup("[#22BB22FF]Hello, [~]World[~]Universe[.]$[=]$[^]$[^]!", layouts[line++] = new TextraLayout());
