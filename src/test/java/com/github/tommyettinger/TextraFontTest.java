@@ -63,6 +63,8 @@ public class TextraFontTest extends ApplicationAdapter {
 //        font = new Font(new BitmapFont(Gdx.files.internal("dawnlike/PlainAndSimplePlus.fnt"), atlas.findRegion("PlainAndSimplePlus")), false, 0, 0, 2, 2);
 
         layout.setBaseColor(Color.SLATE);
+        layout.setMaxLines(7);
+        layout.setEllipsis("...");
         font.markup("I wanna thank you all for coming here tonight..."
                 + "\n[#22BB22FF]Hello, [~]World[~]Universe[.]$[=]$[^]$[^]!"
                 + "\nThe [RED]MAW[] of the [/][CYAN]wendigo[/] (wendigo)[] [*]appears[*]!"
