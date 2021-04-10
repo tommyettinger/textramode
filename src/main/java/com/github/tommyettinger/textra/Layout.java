@@ -35,21 +35,7 @@ public class Layout implements Pool.Poolable {
     public Layout add(long glyph){
         if((glyph & 0xFFFFL) == 10L)
         {
-            if(lines.size < maxLines)
-            {
-                lines.add(Pools.obtain(Line.class));
-            }
-            // TODO: The ellipsis behavior should be moved to Font, and affect glyphs added, not newlines.
-            else {
-                if(ellipsis != null){
-                    Line latest = lines.peek();
-                    for (int eLen = ellipsis.length(), i = 0, s = latest.glyphs.size - eLen;
-                         i < eLen; i++, s++) {
-                        if(s >= 0)
-                            latest.glyphs.set(s, (latest.glyphs.get(s) & 0xFFFFFFFFFFFF0000L) | ellipsis.charAt(i));
-                    }
-                }
-            }
+            pushLine();
         }
         else {
             lines.peek().glyphs.add(glyph);
@@ -93,6 +79,7 @@ public class Layout implements Pool.Poolable {
     }
 
     public Line pushLine() {
+        if(lines.size >= maxLines) return null;
         Line line = Pools.obtain(Line.class);
         lines.add(line);
         return line;
