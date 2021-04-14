@@ -484,6 +484,7 @@ public class Font implements Disposable {
         originalCellWidth = cellWidth;
         originalCellHeight = cellHeight;
         isMono = minWidth == cellWidth && kerning == null;
+        scale(bmFont.getScaleX(), bmFont.getScaleY());
     }
     /**
      * The gritty parsing code that pulls relevant info from a FNT file and uses it to assemble the
@@ -839,7 +840,8 @@ public class Font implements Disposable {
         Texture tex = tr.getTexture();
         float x0 = 0f, x1 = 0f, x2 = 0f, x3 = 0f;
         float y0 = 0f, y1 = 0f, y2 = 0f, y3 = 0f;
-        float color = NumberUtils.intToFloatColor(Integer.reverseBytes((int) (glyph >>> 32)));
+        float color = NumberUtils.intBitsToFloat(((int)(batch.getColor().a * 127.999f) << 25)
+                | (0xFFFFFF & Integer.reverseBytes((int) (glyph >>> 32))));
         final float xPx = 1f, xPx2 = 2f, iw = 1f / tex.getWidth(), ih = 1f / tex.getHeight();
         float u, v, u2, v2;
         u = tr.getU();
