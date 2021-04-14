@@ -21,7 +21,7 @@ public class TextraFontTest extends ApplicationAdapter {
 
     Font font;
     SpriteBatch batch;
-    Layout layout = new Layout().setTargetWidth(700);
+    Layout layout = new Layout().setTargetWidth(550);
 
     public static void main(String[] args){
         Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
