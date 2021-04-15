@@ -1,0 +1,1 @@
+typeSearchIndex = [{"l":"All Classes","u":"allclasses-index.html"},{"p":"com.github.tommyettinger.textra","l":"Font"},{"p":"com.github.tommyettinger.textra","l":"Font.GlyphRegion"},{"p":"com.github.tommyettinger.textra","l":"Layout"},{"p":"com.github.tommyettinger.textra","l":"Line"},{"p":"com.github.tommyettinger.textra","l":"TextraLabel"}];updateSearchResults();

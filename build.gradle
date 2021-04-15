@@ -1,19 +1,17 @@
 buildscript {
     repositories {
+        mavenLocal()
         mavenCentral()
-        maven { url "http://oss.sonatype.org/content/repositories/snapshots/" }
-        jcenter()
+        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+        gradlePluginPortal()
     }
     dependencies {
-        classpath 'com.bmuschko:gradle-nexus-plugin:2.3.1'
-        classpath "io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.21.0"
+        classpath 'com.vanniktech:gradle-maven-publish-plugin:0.14.2'
     }
 }
 
 apply plugin: 'java-library'
-apply plugin: 'com.bmuschko.nexus'
-apply plugin: 'io.codearte.nexus-staging'
-apply from: 'publish.gradle'
+apply plugin: 'com.vanniktech.maven.publish'
 
 sourceCompatibility = 1.7
 
@@ -22,8 +20,6 @@ version '0.0.1-SNAPSHOT'
 group 'com.github.tommyettinger'
 
 //api "com.github.tommyettinger:textramode:0.0.1"
-
-def gdxVersion = '1.9.13'
 
 [compileJava, compileTestJava, javadoc]*.options*.encoding = 'UTF-8'
 
@@ -39,9 +35,15 @@ if (JavaVersion.current().isJava8Compatible()) {
     }
 }
 
-javadoc.destinationDir = file('docs/apidocs')
+if(JavaVersion.current().isJava9Compatible()) {
+    allprojects {
+        tasks.withType(JavaCompile) {
+            options.release.set(7)
+        }
+    }
+}
 
-sourceSets.test.resources.srcDirs += [ file('src/test/resources').path ]
+javadoc.destinationDir = file('docs/apidocs')
 
 jar {
     archiveBaseName.set(projectName)
@@ -51,6 +53,7 @@ jar {
 }
 
 repositories {
+    mavenLocal()
     mavenCentral()
     maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
 }
