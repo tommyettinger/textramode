@@ -39,28 +39,29 @@ public class TextraFontTest extends ApplicationAdapter {
     public void create() {
         Gdx.app.setLogLevel(Application.LOG_DEBUG);
         batch = new SpriteBatch();
-        font = new Font(new BitmapFont(Gdx.files.internal("Gentium.fnt")), false, -1f, 0f, -4.5f, 0f).scale(0.5f, 0.5f);
-//        font = new Font("Gentium.fnt", false, -1f, 0f, -4.5f, 0f).scale(0.5f, 0.5f);
-        for(TextureRegion parent : font.parents){
-            parent.getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-        }
+//        font = new Font(new BitmapFont(Gdx.files.internal("Gentium.fnt")), Font.DistanceFieldType.STANDARD, -1f, 0f, -4.5f, 0f).scale(0.5f, 0.5f);
+////        font = new Font("Gentium.fnt", Font.DistanceFieldType.STANDARD, -1f, 0f, -4.5f, 0f).scale(0.5f, 0.5f);
+//        for(TextureRegion parent : font.parents){
+//            parent.getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+//        }
 //        font = new Font("LibertinusSerif.fnt",
-//                new TextureRegion(new Texture(Gdx.files.internal("LibertinusSerif.png"), true)), false, 0, 0, 0, 0)
+//                new TextureRegion(new Texture(Gdx.files.internal("LibertinusSerif.png"), true)), Font.DistanceFieldType.STANDARD, 0, 0, 0, 0)
 //        .scale(0.25f, 0.25f);
 //        for(TextureRegion parent : font.parents){
 //            parent.getTexture().setFilter(Texture.TextureFilter.MipMapLinearNearest, Texture.TextureFilter.MipMapLinearNearest);
 //        }
-//        font = new Font("Cozette.fnt", "Cozette.png", false, 2, 2, 0, 0).scale(2f, 2f);
-//        font = new Font("AStarry.fnt", false, 1, 1, -1, -1);//.scale(2f, 2f);
-//        font = new Font("Iosevka-Slab-msdf.fnt", "Iosevka-Slab-msdf.png", true, 3f, 6, -4f, -7).scale(0.75f, 0.75f);
-//        font = new Font("LibertinusSerif-Regular-msdf.fnt", "LibertinusSerif-Regular-msdf.png", true, 6f, 1f, -1f, -1f).scale(1.5f, 1.5f);
-//        font = new Font("Inconsolata-LGC-Custom-msdf.fnt", "Inconsolata-LGC-Custom-msdf.png", true, 5f, 1f, -10f, -8f).scaleTo(16f, 28f);
+//        font = new Font("Cozette.fnt", "Cozette.png", Font.DistanceFieldType.STANDARD, 2, 2, 0, 0).scale(2f, 2f);
+//        font = new Font("AStarry.fnt", Font.DistanceFieldType.STANDARD, 1, 1, -1, -1);//.scale(2f, 2f);
+//        font = new Font("Iosevka-Slab-msdf.fnt", "Iosevka-Slab-msdf.png", Font.DistanceFieldType.MSDF, 3f, 6f, -4f, -7).scale(0.75f, 0.75f);
+//        font = new Font("LibertinusSerif-Regular-msdf.fnt", "LibertinusSerif-Regular-msdf.png", Font.DistanceFieldType.MSDF, 6f, 1f, -1f, -1f).scale(1.5f, 1.5f);
+//        font = new Font("Inconsolata-LGC-Custom-msdf.fnt", "Inconsolata-LGC-Custom-msdf.png", Font.DistanceFieldType.MSDF, 5f, 1f, -10f, -8f).scaleTo(16f, 28f);
+        font = new Font("Iosevka-distance.fnt", "Iosevka-distance.png", Font.DistanceFieldType.SDF, 0, 0, 0, 0).scale(0.75f, 0.75f);
 
 //        TextureAtlas atlas = new TextureAtlas(Gdx.files.internal("dawnlike/Dawnlike.atlas"), Gdx.files.internal("dawnlike"));
-//        font = new Font("dawnlike/PlainAndSimplePlus.fnt", atlas.findRegion("PlainAndSimplePlus"), false, 0, 0, 2, 2);
+//        font = new Font("dawnlike/PlainAndSimplePlus.fnt", atlas.findRegion("PlainAndSimplePlus"), Font.DistanceFieldType.STANDARD, 0, 0, 2, 2);
 
 //        TextureAtlas atlas = new TextureAtlas(Gdx.files.internal("dawnlike/Dawnlike.atlas"), Gdx.files.internal("dawnlike"));
-//        font = new Font(new BitmapFont(Gdx.files.internal("dawnlike/PlainAndSimplePlus.fnt"), atlas.findRegion("PlainAndSimplePlus")), false, 0, 0, 2, 2);
+//        font = new Font(new BitmapFont(Gdx.files.internal("dawnlike/PlainAndSimplePlus.fnt"), atlas.findRegion("PlainAndSimplePlus")), Font.DistanceFieldType.STANDARD, 0, 0, 2, 2);
 
         layout.setBaseColor(Color.SLATE);
         layout.setMaxLines(7);
@@ -101,7 +102,7 @@ public class TextraFontTest extends ApplicationAdapter {
         font.enableShader(batch);
 
         font.drawGlyphs(batch, layout, x, y, Align.right);
-
+//        batch.draw(font.parents.first(), 0, 0);
         batch.end();
         Gdx.graphics.setTitle(Gdx.graphics.getFramesPerSecond() + " FPS");
     }

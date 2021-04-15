@@ -14,10 +14,10 @@ public class TextraLabel extends Widget {
     public int align = Align.center;
     public TextraLabel(){
         layout = Pools.obtain(Layout.class);
-        font = new Font(new BitmapFont(), false, 0, 0, 0, 0);
+        font = new Font(new BitmapFont(), Font.DistanceFieldType.STANDARD, 0, 0, 0, 0);
     }
     public TextraLabel(String text, Label.LabelStyle style) {
-        font = new Font(style.font, false, 0, 0, 0, 0);
+        font = new Font(style.font, Font.DistanceFieldType.STANDARD, 0, 0, 0, 0);
         layout = Pools.obtain(Layout.class);
         layout.setBaseColor(style.fontColor);
         font.markup(text, layout);

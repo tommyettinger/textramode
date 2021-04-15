@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.Colors;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.DistanceFieldFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.utils.*;
@@ -80,15 +81,25 @@ public class Font implements Disposable {
         }
     }
 
+    /**
+     * Defines what types of distance field font this can use and render.
+     * STANDARD has no distance field.
+     * SDF is the signed distance field technique Hiero is compatible with, and uses only an alpha channel.
+     * MSDF is the multi-channel signed distance field technique, which is sharper but uses the RGB channels.
+     */
+    public enum DistanceFieldType {
+        STANDARD, SDF, MSDF
+    }
+
     //// members section
 
     public IntMap<GlyphRegion> mapping;
     public GlyphRegion defaultValue;
     public Array<TextureRegion> parents;
-    public boolean isMSDF;
+    public DistanceFieldType distanceField;
     public boolean isMono;
     public IntIntMap kerning;
-    public float msdfCrispness = 1f;
+    public float distanceFieldCrispness = 1f;
     public float cellWidth = 1f;
     public float cellHeight = 1f;
     public float originalCellWidth = 1f;
@@ -342,14 +353,17 @@ public class Font implements Disposable {
     }
 
     //// constructor section
-    public Font(String fntName, String textureName, boolean isMSDF){
-        this(fntName, textureName, isMSDF, 0f, 0f, 0f, 0f);
+    public Font(String fntName, String textureName){
+        this(fntName, textureName, DistanceFieldType.STANDARD, 0f, 0f, 0f, 0f);
+    }
+    public Font(String fntName, String textureName, DistanceFieldType distanceField){
+        this(fntName, textureName, distanceField, 0f, 0f, 0f, 0f);
     }
 
     public Font(Font toCopy){
-        isMSDF = toCopy.isMSDF;
+        distanceField = toCopy.distanceField;
         isMono = toCopy.isMono;
-        msdfCrispness = toCopy.msdfCrispness;
+        distanceFieldCrispness = toCopy.distanceFieldCrispness;
         parents = new Array<>(toCopy.parents);
         cellWidth = toCopy.cellWidth;
         cellHeight = toCopy.cellHeight;
@@ -369,30 +383,40 @@ public class Font implements Disposable {
             shader = toCopy.shader;
     }
 
-    public Font(String fntName, boolean isMSDF,
+    public Font(String fntName, DistanceFieldType distanceField,
                 float xAdjust, float yAdjust, float widthAdjust, float heightAdjust) {
-        this.isMSDF = isMSDF;
-        if (isMSDF) {
+        this.distanceField = distanceField;
+        if (distanceField == DistanceFieldType.MSDF) {
             shader = new ShaderProgram(vertexShader, msdfFragmentShader);
             if (!shader.isCompiled())
                 Gdx.app.error("textramode", "MSDF shader failed to compile: " + shader.getLog());
         }
+        else if(distanceField == DistanceFieldType.SDF){
+            shader = DistanceFieldFont.createDistanceFieldShader();
+            if(!shader.isCompiled())
+                Gdx.app.error("textramode", "SDF shader failed to compile: " + shader.getLog());
+        }
         loadFNT(fntName, xAdjust, yAdjust, widthAdjust, heightAdjust);
     }
 
-    public Font(String fntName, String textureName, boolean isMSDF,
+    public Font(String fntName, String textureName, DistanceFieldType distanceField,
                 float xAdjust, float yAdjust, float widthAdjust, float heightAdjust) {
-        this.isMSDF = isMSDF;
-        if (isMSDF) {
+        this.distanceField = distanceField;
+        if (distanceField == DistanceFieldType.MSDF) {
             shader = new ShaderProgram(vertexShader, msdfFragmentShader);
             if (!shader.isCompiled())
                 Gdx.app.error("textramode", "MSDF shader failed to compile: " + shader.getLog());
+        }
+        else if(distanceField == DistanceFieldType.SDF){
+            shader = DistanceFieldFont.createDistanceFieldShader();
+            if(!shader.isCompiled())
+                Gdx.app.error("textramode", "SDF shader failed to compile: " + shader.getLog());
         }
         FileHandle textureHandle;
         if ((textureHandle = Gdx.files.internal(textureName)).exists()
                 || (textureHandle = Gdx.files.classpath(textureName)).exists()) {
             parents = Array.with(new TextureRegion(new Texture(textureHandle)));
-            if (isMSDF) {
+            if (distanceField == DistanceFieldType.SDF || distanceField == DistanceFieldType.MSDF) {
                 parents.first().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
             }
         } else {
@@ -401,30 +425,42 @@ public class Font implements Disposable {
         loadFNT(fntName, xAdjust, yAdjust, widthAdjust, heightAdjust);
     }
 
-    public Font(String fntName, TextureRegion parent, boolean isMSDF,
+    public Font(String fntName, TextureRegion parent, DistanceFieldType distanceField,
                 float xAdjust, float yAdjust, float widthAdjust, float heightAdjust) {
-        this.isMSDF = isMSDF;
-        if (isMSDF) {
+        this.distanceField = distanceField;
+        if (distanceField == DistanceFieldType.MSDF) {
             shader = new ShaderProgram(vertexShader, msdfFragmentShader);
             if (!shader.isCompiled())
                 Gdx.app.error("textramode", "MSDF shader failed to compile: " + shader.getLog());
         }
+        else if(distanceField == DistanceFieldType.SDF){
+            shader = DistanceFieldFont.createDistanceFieldShader();
+            if(!shader.isCompiled())
+                Gdx.app.error("textramode", "SDF shader failed to compile: " + shader.getLog());
+        }
         this.parents = Array.with(parent);
-        if (isMSDF)
+        if (distanceField == DistanceFieldType.SDF || distanceField == DistanceFieldType.MSDF) {
             parent.getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+        }
         loadFNT(fntName, xAdjust, yAdjust, widthAdjust, heightAdjust);
     }
 
-    public Font(String fntName, Array<TextureRegion> parents, boolean isMSDF,
+    public Font(String fntName, Array<TextureRegion> parents, DistanceFieldType distanceField,
                 float xAdjust, float yAdjust, float widthAdjust, float heightAdjust) {
-        this.isMSDF = isMSDF;
-        if (isMSDF) {
+        this.distanceField = distanceField;
+        if (distanceField == DistanceFieldType.MSDF) {
             shader = new ShaderProgram(vertexShader, msdfFragmentShader);
             if (!shader.isCompiled())
                 Gdx.app.error("textramode", "MSDF shader failed to compile: " + shader.getLog());
         }
+        else if(distanceField == DistanceFieldType.SDF){
+            shader = DistanceFieldFont.createDistanceFieldShader();
+            if(!shader.isCompiled())
+                Gdx.app.error("textramode", "SDF shader failed to compile: " + shader.getLog());
+        }
         this.parents = parents;
-        if (isMSDF && parents != null)
+        if ((distanceField == DistanceFieldType.SDF || distanceField == DistanceFieldType.MSDF)
+                && parents != null)
         {
             for(TextureRegion parent : parents)
                 parent.getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
@@ -432,16 +468,22 @@ public class Font implements Disposable {
         loadFNT(fntName, xAdjust, yAdjust, widthAdjust, heightAdjust);
     }
 
-    public Font(BitmapFont bmFont, boolean isMSDF,
+    public Font(BitmapFont bmFont, DistanceFieldType distanceField,
                 float xAdjust, float yAdjust, float widthAdjust, float heightAdjust) {
-        this.isMSDF = isMSDF;
-        if (isMSDF) {
+        this.distanceField = distanceField;
+        if (distanceField == DistanceFieldType.MSDF) {
             shader = new ShaderProgram(vertexShader, msdfFragmentShader);
             if (!shader.isCompiled())
                 Gdx.app.error("textramode", "MSDF shader failed to compile: " + shader.getLog());
         }
+        else if(distanceField == DistanceFieldType.SDF){
+            shader = DistanceFieldFont.createDistanceFieldShader();
+            if(!shader.isCompiled())
+                Gdx.app.error("textramode", "SDF shader failed to compile: " + shader.getLog());
+        }
         this.parents = bmFont.getRegions();
-        if (isMSDF && parents != null)
+        if ((distanceField == DistanceFieldType.SDF || distanceField == DistanceFieldType.MSDF)
+                && parents != null)
         {
             for(TextureRegion parent : parents)
                 parent.getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
@@ -526,9 +568,8 @@ public class Font implements Disposable {
                 if ((textureHandle = Gdx.files.internal(textureName)).exists()
                         || (textureHandle = Gdx.files.classpath(textureName)).exists()) {
                     parents.add(new TextureRegion(new Texture(textureHandle)));
-                    if (isMSDF) {
+                    if (distanceField == DistanceFieldType.SDF || distanceField == DistanceFieldType.MSDF)
                         parents.peek().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-                    }
                 } else {
                     throw new RuntimeException("Missing texture file: " + textureName);
                 }
@@ -634,13 +675,17 @@ public class Font implements Disposable {
      * @param batch the Batch to instruct to use the appropriate shader for this font; should usually be a SpriteBatch
      */
     public void enableShader(Batch batch) {
-        if(isMSDF) {
+        if(distanceField == DistanceFieldType.MSDF) {
             if (batch.getShader() != shader) {
                 batch.setShader(shader);
-                shader.setUniformf("u_smoothing", 7f * msdfCrispness * Math.max(cellHeight / originalCellHeight, cellWidth / originalCellWidth));
+                shader.setUniformf("u_smoothing", 7f * distanceFieldCrispness * Math.max(cellHeight / originalCellHeight, cellWidth / originalCellWidth));
             }
-        }
-        else {
+        } else if(distanceField == DistanceFieldType.SDF){
+            if (batch.getShader() != shader) {
+                batch.setShader(shader);
+                shader.setUniformf("u_smoothing", (2.5f * distanceFieldCrispness * Math.max(cellHeight / originalCellHeight, cellWidth / originalCellWidth)));
+            }
+        } else {
             batch.setShader(null);
         }
         batch.setPackedColor(Color.WHITE_FLOAT_BITS);
@@ -1267,11 +1312,11 @@ public class Font implements Disposable {
                         if(appendTo.ellipsis != null) {
                             for (int j = earlier.glyphs.size - 1; j >= 0; j--) {
                                 int leading = 0;
-                                while (Arrays.binarySearch(spaceChars.items, 0, spaceChars.size, (char) earlier.glyphs.get(j)) < 0) {
+                                while (Arrays.binarySearch(spaceChars.items, 0, spaceChars.size, (char) earlier.glyphs.get(j)) < 0 && j > 0) {
                                     ++leading;
                                     --j;
                                 }
-                                while (Arrays.binarySearch(spaceChars.items, 0, spaceChars.size, (char) earlier.glyphs.get(j)) >= 0) {
+                                while (Arrays.binarySearch(spaceChars.items, 0, spaceChars.size, (char) earlier.glyphs.get(j)) >= 0 && j > 0) {
                                     ++leading;
                                     --j;
                                 }

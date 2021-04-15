@@ -43,6 +43,8 @@ if(JavaVersion.current().isJava9Compatible()) {
     }
 }
 
+sourceSets.test.resources.srcDirs = [ file('src/test/resources').path ]
+
 javadoc.destinationDir = file('docs/apidocs')
 
 jar {
