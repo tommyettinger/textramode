@@ -55,7 +55,7 @@ public class TextraFontTest extends ApplicationAdapter {
 //        font = new Font("Iosevka-Slab-msdf.fnt", "Iosevka-Slab-msdf.png", Font.DistanceFieldType.MSDF, 3f, 6f, -4f, -7).scale(0.75f, 0.75f);
 //        font = new Font("LibertinusSerif-Regular-msdf.fnt", "LibertinusSerif-Regular-msdf.png", Font.DistanceFieldType.MSDF, 6f, 1f, -1f, -1f).scale(1.5f, 1.5f);
 //        font = new Font("Inconsolata-LGC-Custom-msdf.fnt", "Inconsolata-LGC-Custom-msdf.png", Font.DistanceFieldType.MSDF, 5f, 1f, -10f, -8f).scaleTo(16f, 28f);
-        font = new Font("Iosevka-distance.fnt", "Iosevka-distance.png", Font.DistanceFieldType.SDF, 0, 0, 0, 0).scale(0.75f, 0.75f);
+        font = new Font("Iosevka-distance.fnt", "Iosevka-distance.png", Font.DistanceFieldType.SDF, 0, 0, 0, 0).scaleTo(7f, 19f);
 
 //        TextureAtlas atlas = new TextureAtlas(Gdx.files.internal("dawnlike/Dawnlike.atlas"), Gdx.files.internal("dawnlike"));
 //        font = new Font("dawnlike/PlainAndSimplePlus.fnt", atlas.findRegion("PlainAndSimplePlus"), Font.DistanceFieldType.STANDARD, 0, 0, 2, 2);

@@ -683,7 +683,8 @@ public class Font implements Disposable {
         } else if(distanceField == DistanceFieldType.SDF){
             if (batch.getShader() != shader) {
                 batch.setShader(shader);
-                shader.setUniformf("u_smoothing", (2.5f * distanceFieldCrispness * Math.max(cellHeight / originalCellHeight, cellWidth / originalCellWidth)));
+                final float scale = Math.max(cellHeight / originalCellHeight, cellWidth / originalCellWidth) * 0.5f + 0.5f;
+                shader.setUniformf("u_smoothing", (distanceFieldCrispness / (scale * scale)));
             }
         } else {
             batch.setShader(null);
@@ -898,7 +899,7 @@ public class Font implements Disposable {
         float y0 = 0f, y1 = 0f, y2 = 0f, y3 = 0f;
         float color = NumberUtils.intBitsToFloat(((int)(batch.getColor().a * 127.999f) << 25)
                 | (0xFFFFFF & Integer.reverseBytes((int) (glyph >>> 32))));
-        final float xPx = 1f, xPx2 = 2f, iw = 1f / tex.getWidth(), ih = 1f / tex.getHeight();
+        final float iw = 1f / tex.getWidth();
         float u, v, u2, v2;
         u = tr.getU();
         v = tr.getV();
@@ -973,17 +974,29 @@ public class Font implements Disposable {
         vertices[18] = u2;
         vertices[19] = v;
         batch.draw(tex, vertices, 0, 20);
+        final float xPx = 1f;
         if ((glyph & BOLD) != 0L) {
-            vertices[0] += xPx;
-            vertices[5] += xPx;
-            vertices[10] += xPx;
-            vertices[15] += xPx;
+            vertices[0] +=  1f;
+            vertices[5] +=  1f;
+            vertices[10] += 1f;
+            vertices[15] += 1f;
             batch.draw(tex, vertices, 0, 20);
-            vertices[0] -= xPx2;
-            vertices[5] -= xPx2;
-            vertices[10] -= xPx2;
-            vertices[15] -= xPx2;
+            vertices[0] -=  2f;
+            vertices[5] -=  2f;
+            vertices[10] -= 2f;
+            vertices[15] -= 2f;
             batch.draw(tex, vertices, 0, 20);
+            vertices[0] +=  0.5f;
+            vertices[5] +=  0.5f;
+            vertices[10] += 0.5f;
+            vertices[15] += 0.5f;
+            batch.draw(tex, vertices, 0, 20);
+            vertices[0] +=  1f;
+            vertices[5] +=  1f;
+            vertices[10] += 1f;
+            vertices[15] += 1f;
+            batch.draw(tex, vertices, 0, 20);
+
         }
         if ((glyph & UNDERLINE) != 0L) {
             final GlyphRegion under = mapping.get('_');
