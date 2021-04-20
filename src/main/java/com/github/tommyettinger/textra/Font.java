@@ -1034,31 +1034,31 @@ public class Font implements Disposable {
         if ((glyph & STRIKETHROUGH) != 0L) {
             final GlyphRegion dash = mapping.get('-');
             if (dash != null) {
-                final float dashU = dash.getU() + (dash.xAdvance - dash.offsetX) * iw * 0.25f,
+                final float dashU = dash.getU() + (dash.xAdvance - dash.offsetX) * iw * 0.625f,
                         dashV = dash.getV(),
-                        dashU2 = dash.getU() + (dash.xAdvance - dash.offsetX) * iw * 0.75f,
+                        dashU2 = dashU + iw,
                         dashV2 = dash.getV2(),
                         hd = dash.getRegionHeight() * scaleY, yd = y + cellHeight - hd - dash.offsetY * scaleY;
-
-                vertices[0] = x - 1f;
+                x0 = x - (dash.offsetX);
+                vertices[0] = x0 - 1f;
                 vertices[1] = yd + hd;
                 vertices[2] = color;
                 vertices[3] = dashU;
                 vertices[4] = dashV;
 
-                vertices[5] = x - 1f;
+                vertices[5] = x0 - 1f;
                 vertices[6] = yd;
                 vertices[7] = color;
                 vertices[8] = dashU;
                 vertices[9] = dashV2;
 
-                vertices[10] = x + changedW + 1f;
+                vertices[10] = x0 + changedW + 1f;
                 vertices[11] = yd;
                 vertices[12] = color;
                 vertices[13] = dashU2;
                 vertices[14] = dashV2;
 
-                vertices[15] = x + changedW + 1f;
+                vertices[15] = x0 + changedW + 1f;
                 vertices[16] = yd + hd;
                 vertices[17] = color;
                 vertices[18] = dashU2;
@@ -1201,7 +1201,7 @@ public class Font implements Disposable {
                         w = (appendTo.peekLine().width += xAdvance(current | '[') + kerning.get(kern, 0) * scaleX);
                     }
                     appendTo.add(current | '[');
-                    if(w > targetWidth) {
+                    if(targetWidth > 0 && w > targetWidth) {
                         Line earlier = appendTo.peekLine();
                         Line later = appendTo.pushLine();
                         if(later == null){
@@ -1315,7 +1315,7 @@ public class Font implements Disposable {
                     w = (appendTo.peekLine().width += xAdvance(current | ch) + kerning.get(kern, 0) * scaleX);
                 }
                 appendTo.add(current | ch);
-                if(w > targetWidth || appendTo.atLimit) {
+                if((targetWidth > 0 && w > targetWidth) || appendTo.atLimit) {
                     Line earlier = appendTo.peekLine();
                     Line later = appendTo.pushLine();
                     if(later == null){

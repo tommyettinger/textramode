@@ -84,7 +84,9 @@ public class Layout implements Pool.Poolable {
             atLimit = true;
             return null;
         }
+
         Line line = Pools.obtain(Line.class);
+        line.height = lines.peek().height;
         lines.add(line);
         return line;
     }
