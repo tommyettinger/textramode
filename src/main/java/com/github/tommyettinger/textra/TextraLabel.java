@@ -64,4 +64,13 @@ public class TextraLabel extends Widget {
     public float getPrefHeight() {
         return layout.getHeight();
     }
+
+    /**
+     * Sets the alignment for the text in this TextraLabel.
+     * @see Align
+     * @param alignment a constant from {@link Align}
+     */
+    public void setAlignment (int alignment) {
+        align = alignment;
+    }
 }

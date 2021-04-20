@@ -120,7 +120,7 @@ public class TextraUITest extends InputAdapter implements ApplicationListener {
 		rightSideTable.add(scrollPane2).grow();
 		SplitPane splitPane = new SplitPane(scrollPane, rightSideTable, false, skin, "default-horizontal");
 		fpsLabel = new TextraLabel("fps:", skin);
-
+		fpsLabel.setAlignment(Align.left);
 		// configures an example of a TextField in password mode.
 		final TextraLabel passwordLabel = new TextraLabel("Textfield in [~]secure[] password mode: ", skin);
 		final TextField passwordTextField = new TextField("", skin);
