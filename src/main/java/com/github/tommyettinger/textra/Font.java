@@ -974,7 +974,6 @@ public class Font implements Disposable {
         vertices[18] = u2;
         vertices[19] = v;
         batch.draw(tex, vertices, 0, 20);
-        final float xPx = 1f;
         if ((glyph & BOLD) != 0L) {
             vertices[0] +=  1f;
             vertices[5] +=  1f;
@@ -1006,25 +1005,25 @@ public class Font implements Disposable {
                         underU2 = under.getU() + (under.xAdvance - under.offsetX) * iw * 0.75f,
                         underV2 = under.getV2(),
                         hu = under.getRegionHeight() * scaleY, yu = y + cellHeight - hu - under.offsetY * scaleY;
-                vertices[0] = x - xPx;
+                vertices[0] = x - 1f;
                 vertices[1] = yu + hu;
                 vertices[2] = color;
                 vertices[3] = underU;
                 vertices[4] = underV;
 
-                vertices[5] = x - xPx;
+                vertices[5] = x - 1f;
                 vertices[6] = yu;
                 vertices[7] = color;
                 vertices[8] = underU;
                 vertices[9] = underV2;
 
-                vertices[10] = x + changedW + xPx;
+                vertices[10] = x + changedW + 1f;
                 vertices[11] = yu;
                 vertices[12] = color;
                 vertices[13] = underU2;
                 vertices[14] = underV2;
 
-                vertices[15] = x + changedW + xPx;
+                vertices[15] = x + changedW + 1f;
                 vertices[16] = yu + hu;
                 vertices[17] = color;
                 vertices[18] = underU2;
@@ -1041,25 +1040,25 @@ public class Font implements Disposable {
                         dashV2 = dash.getV2(),
                         hd = dash.getRegionHeight() * scaleY, yd = y + cellHeight - hd - dash.offsetY * scaleY;
 
-                vertices[0] = x - xPx;
+                vertices[0] = x - 1f;
                 vertices[1] = yd + hd;
                 vertices[2] = color;
                 vertices[3] = dashU;
                 vertices[4] = dashV;
 
-                vertices[5] = x - xPx;
+                vertices[5] = x - 1f;
                 vertices[6] = yd;
                 vertices[7] = color;
                 vertices[8] = dashU;
                 vertices[9] = dashV2;
 
-                vertices[10] = x + changedW + xPx;
+                vertices[10] = x + changedW + 1f;
                 vertices[11] = yd;
                 vertices[12] = color;
                 vertices[13] = dashU2;
                 vertices[14] = dashV2;
 
-                vertices[15] = x + changedW + xPx;
+                vertices[15] = x + changedW + 1f;
                 vertices[16] = yd + hd;
                 vertices[17] = color;
                 vertices[18] = dashU2;
