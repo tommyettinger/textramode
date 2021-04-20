@@ -88,7 +88,26 @@ public class Font implements Disposable {
      * MSDF is the multi-channel signed distance field technique, which is sharper but uses the RGB channels.
      */
     public enum DistanceFieldType {
-        STANDARD, SDF, MSDF
+        /**
+         * Used by normal fonts with no distance field effect.
+         * If the font has a large image that is downscaled, you may want to call {@link #setTextureFilter()}.
+         */
+        STANDARD,
+        /**
+         * Used by Signed Distance Field fonts that are compatible with {@link DistanceFieldFont}, and may be created
+         * by Hiero with its Distance Field effect. You may want to set the {@link #distanceFieldCrispness} field to a
+         * higher or lower value depending on the range used to create the font in Hiero; this can take experimentation.
+         */
+        SDF,
+        /**
+         * Used by Multi-channel Signed Distance Field fonts, which are harder to create but can be more crisp than SDF
+         * fonts, with hard corners where the corners were hard in the original font. If you want to create your own
+         * MSDF font, you can use <a href="https://github.com/tommyettinger/Glamer">the Glamer font generator tool</a>,
+         * which puts a lot of padding for each glyph to ensure it renders evenly, or you can use one of several other
+         * MSDF font generators, which may have an uneven baseline and look shaky when rendered for some fonts. You may
+         * want to set the {@link #distanceFieldCrispness} field to a higher or lower value based on preference.
+         */
+        MSDF
     }
 
     //// members section
@@ -96,15 +115,40 @@ public class Font implements Disposable {
     public IntMap<GlyphRegion> mapping;
     public GlyphRegion defaultValue;
     public Array<TextureRegion> parents;
-    public DistanceFieldType distanceField;
+    public DistanceFieldType distanceField = DistanceFieldType.STANDARD;
     public boolean isMono;
     public IntIntMap kerning;
+    /**
+     * When {@link #distanceField} is {@link DistanceFieldType#SDF} or {@link DistanceFieldType#MSDF}, this determines
+     * how much the edges of the glyphs should be aliased sharply (higher values) or anti-aliased softly (lower values).
+     * The default value is 1.
+     */
     public float distanceFieldCrispness = 1f;
+    /**
+     * Only actually refers to a "cell" when {@link #isMono} is true; otherwise refers to the largest width of any
+     * glyph in the font, after scaling.
+     */
     public float cellWidth = 1f;
+    /**
+     * Refers to the largest height of any glyph in the font, after scaling.
+     */
     public float cellHeight = 1f;
+    /**
+     * Only actually refers to a "cell" when {@link #isMono} is true; otherwise refers to the largest width of any
+     * glyph in the font, before any scaling.
+     */
     public float originalCellWidth = 1f;
+    /**
+     * Refers to the largest height of any glyph in the font, before any scaling.
+     */
     public float originalCellHeight = 1f;
+    /**
+     * Scale multiplier for width.
+     */
     public float scaleX = 1f;
+    /**
+     * Scale multiplier for height.
+     */
     public float scaleY = 1f;
 
     public static final long BOLD = 1L << 30, OBLIQUE = 1L << 29,
@@ -160,6 +204,9 @@ public class Font implements Disposable {
             '\u200B' // Unicode space (zero-width)
     );
 
+    /**
+     * The standard libGDX vertex shader source, which is also used by the MSDF shader.
+     */
     public static final String vertexShader = "attribute vec4 " + ShaderProgram.POSITION_ATTRIBUTE + ";\n"
             + "attribute vec4 " + ShaderProgram.COLOR_ATTRIBUTE + ";\n"
             + "attribute vec2 " + ShaderProgram.TEXCOORD_ATTRIBUTE + "0;\n"
@@ -173,6 +220,11 @@ public class Font implements Disposable {
             + "	v_texCoords = " + ShaderProgram.TEXCOORD_ATTRIBUTE + "0;\n"
             + "	gl_Position =  u_projTrans * " + ShaderProgram.POSITION_ATTRIBUTE + ";\n"
             + "}\n";
+
+    /**
+     * Fragment shader source meant for MSDF fonts. This is automatically used when {@link #enableShader(Batch)} is
+     * called and the {@link #distanceField} is {@link DistanceFieldType#MSDF}.
+     */
     public static final String msdfFragmentShader =  "#ifdef GL_ES\n"
             + "	precision mediump float;\n"
             + "	precision mediump int;\n"
@@ -187,6 +239,20 @@ public class Font implements Disposable {
             + "  vec3 sdf = texture2D(u_texture, v_texCoords).rgb;\n"
             + "  gl_FragColor = vec4(v_color.rgb, clamp((max(min(sdf.r, sdf.g), min(max(sdf.r, sdf.g), sdf.b)) - 0.5) * u_smoothing + 0.5, 0.0, 1.0) * v_color.a);\n"
             + "}\n";
+
+    /**
+     * The ShaderProgram used to render this font, as used by {@link #enableShader(Batch)}.
+     * If this is null, the font will be rendered with the Batch's default shader.
+     * It may be set to a custom ShaderProgram if {@link #distanceField} is set to {@link DistanceFieldType#MSDF},
+     * or to one created by {@link DistanceFieldFont#createDistanceFieldShader()} if distanceField is set to
+     * {@link DistanceFieldType#SDF}. It can be set to a user-defined ShaderProgram; if it is meant to render
+     * MSDF or SDF fonts, then the ShaderProgram should have a {@code uniform float u_smoothing;} that will be
+     * set by {@link #enableShader(Batch)}. Values passed to u_smoothing can vary a lot, depending on how the
+     * font was initially created, its current scale, and its {@link #distanceFieldCrispness} field. You can
+     * also use a user-defined ShaderProgram with a font using {@link DistanceFieldType#STANDARD}, which may be
+     * easier and can use any uniforms you normally could with a ShaderProgram, since enableShader() won't
+     * change any of the uniforms.
+     */
     public ShaderProgram shader = null;
 
     //// font parsing section
@@ -664,6 +730,40 @@ public class Font implements Disposable {
         scaleY = height / originalCellHeight;
         cellWidth  = width;
         cellHeight = height;
+        return this;
+    }
+
+    /**
+     * Calls {@link #setTextureFilter(Texture.TextureFilter, Texture.TextureFilter)} with
+     * {@link com.badlogic.gdx.graphics.Texture.TextureFilter#Linear} for both min and mag filters.
+     * This is the most common usage for setting the texture filters, and is appropriate when you have
+     * a large TextureRegion holding the font and you normally downscale it. This is automatically done
+     * for {@link DistanceFieldType#SDF} and {@link DistanceFieldType#MSDF} fonts, but you may also want
+     * to use it for {@link DistanceFieldType#STANDARD} fonts when downscaling (they can look terrible
+     * if the default {@link com.badlogic.gdx.graphics.Texture.TextureFilter#Nearest} filter is used).
+     * Note that this sets the filter on every Texture that holds a TextureRegion used by the font, so
+     * it may affect the filter on other parts of an atlas.
+     * @return this, for chaining
+     */
+    public Font setTextureFilter() {
+        return setTextureFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+    }
+
+    /**
+     * Sets the texture filters on each Texture that holds a TextureRegion used by the font to the given
+     * {@code minFilter} and {@code magFilter}. You may want to use this to set a font using
+     * {@link DistanceFieldType#STANDARD} to use a better TextureFilter for smooth downscaling, like
+     * {@link com.badlogic.gdx.graphics.Texture.TextureFilter#MipMapLinearLinear} or just
+     * {@link com.badlogic.gdx.graphics.Texture.TextureFilter#Linear}. You might, for some reason, want to
+     * set a font using {@link DistanceFieldType#SDF} or {@link DistanceFieldType#MSDF} to use TextureFilters
+     * other than its default {@link com.badlogic.gdx.graphics.Texture.TextureFilter#Linear}.
+     * Note that this may affect the filter on other parts of an atlas.
+     * @return this, for chaining
+     */
+    public Font setTextureFilter(Texture.TextureFilter minFilter, Texture.TextureFilter magFilter) {
+        for(TextureRegion parent : parents){
+            parent.getTexture().setFilter(minFilter, magFilter);
+        }
         return this;
     }
 

@@ -7,7 +7,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Widget;
 import com.badlogic.gdx.utils.Align;
-import com.badlogic.gdx.utils.Null;
 import com.badlogic.gdx.utils.Pools;
 
 public class TextraLabel extends Widget {
@@ -63,6 +62,16 @@ public class TextraLabel extends Widget {
     @Override
     public float getPrefHeight() {
         return layout.getHeight();
+    }
+
+    /**
+     * Gets the alignment for the text in this TextraLabel.
+     * This is a constant in {@link Align}.
+     * @see Align
+     * @return the alignment used by this TextraLabel, as a constant from {@link Align}
+     */
+    public int getAlignment() {
+        return align;
     }
 
     /**
