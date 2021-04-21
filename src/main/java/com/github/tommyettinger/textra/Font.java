@@ -419,13 +419,48 @@ public class Font implements Disposable {
     }
 
     //// constructor section
+
+    /**
+     * Constructs a Font by reading in the given .fnt file and loading any images it specifies. Tries an internal handle
+     * first, then a classpath handle. Does not use a distance field effect.
+     * @param fntName the file path and name to a .fnt file this will load
+     */
+    public Font(String fntName){
+        this(fntName, DistanceFieldType.STANDARD, 0f, 0f, 0f, 0f);
+    }
+    /**
+     * Constructs a Font by reading in the given .fnt file and loading any images it specifies. Tries an internal handle
+     * first, then a classpath handle. Uses the specified distance field effect.
+     * @param fntName the file path and name to a .fnt file this will load
+     * @param distanceField
+     */
+    public Font(String fntName, DistanceFieldType distanceField){
+        this(fntName, distanceField, 0f, 0f, 0f, 0f);
+    }
+
+    /**
+     * Constructs a Font by reading in the given .fnt file and the given Texture by filename. Tries an internal handle
+     * first, then a classpath handle. Does not use a distance field effect.
+     * @param fntName the file path and name to a .fnt file this will load
+     */
     public Font(String fntName, String textureName){
         this(fntName, textureName, DistanceFieldType.STANDARD, 0f, 0f, 0f, 0f);
     }
+    /**
+     * Constructs a Font by reading in the given .fnt file and the given Texture by filename. Tries an internal handle
+     * first, then a classpath handle. Uses the specified distance field effect.
+     * @param fntName the file path and name to a .fnt file this will load
+     * @param distanceField
+     */
     public Font(String fntName, String textureName, DistanceFieldType distanceField){
         this(fntName, textureName, distanceField, 0f, 0f, 0f, 0f);
     }
 
+    /**
+     * Copy constructor; does not copy the font's {@link #shader}, if it has one (it keeps a reference), but will fully
+     * copy everything else.
+     * @param toCopy another Font to copy
+     */
     public Font(Font toCopy){
         distanceField = toCopy.distanceField;
         isMono = toCopy.isMono;
@@ -449,6 +484,30 @@ public class Font implements Disposable {
             shader = toCopy.shader;
     }
 
+    /**
+     * Constructs a new Font by reading in a .fnt file with the given name (an internal handle is tried first, then a
+     * classpath handle) and loading any images specified in that file. No distance field effect is used.
+     * @param fntName the path and filename of a .fnt file this will load; may be internal or classpath
+     * @param xAdjust how many pixels to offset each character's x-position by, moving to the right
+     * @param yAdjust how many pixels to offset each character's y-position by, moving up
+     * @param widthAdjust how many pixels to add to the used width of each character, using more to the right
+     * @param heightAdjust how many pixels to add to the used height of each character, using more above
+     */
+    public Font(String fntName,
+                float xAdjust, float yAdjust, float widthAdjust, float heightAdjust) {
+        this(fntName, DistanceFieldType.STANDARD, xAdjust, yAdjust, widthAdjust, heightAdjust);
+    }
+
+    /**
+     * Constructs a new Font by reading in a .fnt file with the given name (an internal handle is tried first, then a
+     * classpath handle) and loading any images specified in that file. The specified distance field effect is used.
+     * @param fntName
+     * @param distanceField
+     * @param xAdjust how many pixels to offset each character's x-position by, moving to the right
+     * @param yAdjust how many pixels to offset each character's y-position by, moving up
+     * @param widthAdjust how many pixels to add to the used width of each character, using more to the right
+     * @param heightAdjust how many pixels to add to the used height of each character, using more above
+     */
     public Font(String fntName, DistanceFieldType distanceField,
                 float xAdjust, float yAdjust, float widthAdjust, float heightAdjust) {
         this.distanceField = distanceField;
@@ -465,6 +524,32 @@ public class Font implements Disposable {
         loadFNT(fntName, xAdjust, yAdjust, widthAdjust, heightAdjust);
     }
 
+    /**
+     * Constructs a new Font by reading in a Texture from the given named path (internal is tried, then classpath),
+     * and no distance field effect.
+     * @param fntName
+     * @param textureName
+     * @param xAdjust how many pixels to offset each character's x-position by, moving to the right
+     * @param yAdjust how many pixels to offset each character's y-position by, moving up
+     * @param widthAdjust how many pixels to add to the used width of each character, using more to the right
+     * @param heightAdjust how many pixels to add to the used height of each character, using more above
+     */
+    public Font(String fntName, String textureName,
+                float xAdjust, float yAdjust, float widthAdjust, float heightAdjust) {
+        this(fntName, textureName, DistanceFieldType.STANDARD, xAdjust, yAdjust, widthAdjust, heightAdjust);
+    }
+
+    /**
+     * Constructs a new Font by reading in a Texture from the given named path (internal is tried, then classpath),
+     * and the specified distance field effect.
+     * @param fntName
+     * @param textureName
+     * @param distanceField
+     * @param xAdjust how many pixels to offset each character's x-position by, moving to the right
+     * @param yAdjust how many pixels to offset each character's y-position by, moving up
+     * @param widthAdjust how many pixels to add to the used width of each character, using more to the right
+     * @param heightAdjust how many pixels to add to the used height of each character, using more above
+     */
     public Font(String fntName, String textureName, DistanceFieldType distanceField,
                 float xAdjust, float yAdjust, float widthAdjust, float heightAdjust) {
         this.distanceField = distanceField;
@@ -491,7 +576,32 @@ public class Font implements Disposable {
         loadFNT(fntName, xAdjust, yAdjust, widthAdjust, heightAdjust);
     }
 
-    public Font(String fntName, TextureRegion parent, DistanceFieldType distanceField,
+    /**
+     * Constructs a font using the given TextureRegion that holds all of its glyphs, with no distance field effect.
+     * @param fntName
+     * @param textureRegion
+     * @param xAdjust how many pixels to offset each character's x-position by, moving to the right
+     * @param yAdjust how many pixels to offset each character's y-position by, moving up
+     * @param widthAdjust how many pixels to add to the used width of each character, using more to the right
+     * @param heightAdjust how many pixels to add to the used height of each character, using more above
+     */
+    public Font(String fntName, TextureRegion textureRegion,
+                float xAdjust, float yAdjust, float widthAdjust, float heightAdjust) {
+        this(fntName, textureRegion, DistanceFieldType.STANDARD, xAdjust, yAdjust, widthAdjust, heightAdjust);
+    }
+
+    /**
+     * Constructs a font using the given TextureRegion that holds all of its glyphs, with the specified distance field
+     * effect.
+     * @param fntName
+     * @param textureRegion
+     * @param distanceField
+     * @param xAdjust how many pixels to offset each character's x-position by, moving to the right
+     * @param yAdjust how many pixels to offset each character's y-position by, moving up
+     * @param widthAdjust how many pixels to add to the used width of each character, using more to the right
+     * @param heightAdjust how many pixels to add to the used height of each character, using more above
+     */
+    public Font(String fntName, TextureRegion textureRegion, DistanceFieldType distanceField,
                 float xAdjust, float yAdjust, float widthAdjust, float heightAdjust) {
         this.distanceField = distanceField;
         if (distanceField == DistanceFieldType.MSDF) {
@@ -504,14 +614,37 @@ public class Font implements Disposable {
             if(!shader.isCompiled())
                 Gdx.app.error("textramode", "SDF shader failed to compile: " + shader.getLog());
         }
-        this.parents = Array.with(parent);
+        this.parents = Array.with(textureRegion);
         if (distanceField == DistanceFieldType.SDF || distanceField == DistanceFieldType.MSDF) {
-            parent.getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+            textureRegion.getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         }
         loadFNT(fntName, xAdjust, yAdjust, widthAdjust, heightAdjust);
     }
 
-    public Font(String fntName, Array<TextureRegion> parents, DistanceFieldType distanceField,
+    /**
+     * Constructs a Font using the given TextureRegion Array, with no distance field effect.
+     * @param fntName
+     * @param textureRegions
+     * @param xAdjust how many pixels to offset each character's x-position by, moving to the right
+     * @param yAdjust how many pixels to offset each character's y-position by, moving up
+     * @param widthAdjust how many pixels to add to the used width of each character, using more to the right
+     * @param heightAdjust how many pixels to add to the used height of each character, using more above
+     */
+    public Font(String fntName, Array<TextureRegion> textureRegions,
+                float xAdjust, float yAdjust, float widthAdjust, float heightAdjust) {
+        this(fntName, textureRegions, DistanceFieldType.STANDARD, xAdjust, yAdjust, widthAdjust, heightAdjust);
+    }
+    /**
+     * Constructs a Font using the given TextureRegion Array and specified distance field effect.
+     * @param fntName
+     * @param textureRegions
+     * @param distanceField
+     * @param xAdjust how many pixels to offset each character's x-position by, moving to the right
+     * @param yAdjust how many pixels to offset each character's y-position by, moving up
+     * @param widthAdjust how many pixels to add to the used width of each character, using more to the right
+     * @param heightAdjust how many pixels to add to the used height of each character, using more above
+     */
+    public Font(String fntName, Array<TextureRegion> textureRegions, DistanceFieldType distanceField,
                 float xAdjust, float yAdjust, float widthAdjust, float heightAdjust) {
         this.distanceField = distanceField;
         if (distanceField == DistanceFieldType.MSDF) {
@@ -524,16 +657,39 @@ public class Font implements Disposable {
             if(!shader.isCompiled())
                 Gdx.app.error("textramode", "SDF shader failed to compile: " + shader.getLog());
         }
-        this.parents = parents;
+        this.parents = textureRegions;
         if ((distanceField == DistanceFieldType.SDF || distanceField == DistanceFieldType.MSDF)
-                && parents != null)
+                && textureRegions != null)
         {
-            for(TextureRegion parent : parents)
+            for(TextureRegion parent : textureRegions)
                 parent.getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         }
         loadFNT(fntName, xAdjust, yAdjust, widthAdjust, heightAdjust);
     }
 
+    /**
+     * Constructs a new Font from the existing BitmapFont, using its same Textures and TextureRegions for glyphs, and
+     * without a distance field effect.
+     * @param bmFont
+     * @param xAdjust how many pixels to offset each character's x-position by, moving to the right
+     * @param yAdjust how many pixels to offset each character's y-position by, moving up
+     * @param widthAdjust how many pixels to add to the used width of each character, using more to the right
+     * @param heightAdjust how many pixels to add to the used height of each character, using more above
+     */
+    public Font(BitmapFont bmFont,
+                float xAdjust, float yAdjust, float widthAdjust, float heightAdjust) {
+        this(bmFont, DistanceFieldType.STANDARD, xAdjust, yAdjust, widthAdjust, heightAdjust);
+    }
+    /**
+     * Constructs a new Font from the existing BitmapFont, using its same Textures and TextureRegions for glyphs, and
+     * with the specified distance field effect.
+     * @param bmFont
+     * @param distanceField
+     * @param xAdjust how many pixels to offset each character's x-position by, moving to the right
+     * @param yAdjust how many pixels to offset each character's y-position by, moving up
+     * @param widthAdjust how many pixels to add to the used width of each character, using more to the right
+     * @param heightAdjust how many pixels to add to the used height of each character, using more above
+     */
     public Font(BitmapFont bmFont, DistanceFieldType distanceField,
                 float xAdjust, float yAdjust, float widthAdjust, float heightAdjust) {
         this.distanceField = distanceField;
