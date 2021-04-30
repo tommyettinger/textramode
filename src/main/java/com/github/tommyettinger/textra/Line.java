@@ -2,8 +2,20 @@ package com.github.tommyettinger.textra;
 
 import com.badlogic.gdx.utils.LongArray;
 import com.badlogic.gdx.utils.Pool;
+import com.badlogic.gdx.utils.Pools;
 
 public class Line implements Pool.Poolable {
+
+    private static final Pool<Line> pool = new Pool<Line>() {
+        @Override
+        protected Line newObject() {
+            return new Line();
+        }
+    };
+    static {
+        Pools.set(Line.class, pool);
+    }
+
     public final LongArray glyphs;
     public float width, height;
 

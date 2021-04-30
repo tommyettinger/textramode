@@ -6,6 +6,17 @@ import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.Pools;
 
 public class Layout implements Pool.Poolable {
+
+    private static final Pool<Layout> pool = new Pool<Layout>() {
+        @Override
+        protected Layout newObject() {
+            return new Layout();
+        }
+    };
+    static {
+        Pools.set(Layout.class, pool);
+    }
+
     protected Font font;
     protected final Array<Line> lines = new Array<>(true, 8, Line.class);
     protected int maxLines = Integer.MAX_VALUE;
@@ -15,6 +26,7 @@ public class Layout implements Pool.Poolable {
     protected float baseColor = Color.WHITE_FLOAT_BITS;
 
     public Layout() {
+        lines.add(Pools.obtain(Line.class));
     }
 
     public Layout(Font font) {
