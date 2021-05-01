@@ -432,7 +432,7 @@ public class Font implements Disposable {
      * Constructs a Font by reading in the given .fnt file and loading any images it specifies. Tries an internal handle
      * first, then a classpath handle. Uses the specified distance field effect.
      * @param fntName the file path and name to a .fnt file this will load
-     * @param distanceField
+     * @param distanceField determines how edges are drawn; if unsure, you should use {@link DistanceFieldType#STANDARD}
      */
     public Font(String fntName, DistanceFieldType distanceField){
         this(fntName, distanceField, 0f, 0f, 0f, 0f);
@@ -450,7 +450,7 @@ public class Font implements Disposable {
      * Constructs a Font by reading in the given .fnt file and the given Texture by filename. Tries an internal handle
      * first, then a classpath handle. Uses the specified distance field effect.
      * @param fntName the file path and name to a .fnt file this will load
-     * @param distanceField
+     * @param distanceField determines how edges are drawn; if unsure, you should use {@link DistanceFieldType#STANDARD}
      */
     public Font(String fntName, String textureName, DistanceFieldType distanceField){
         this(fntName, textureName, distanceField, 0f, 0f, 0f, 0f);
@@ -477,7 +477,8 @@ public class Font implements Disposable {
             if(e.value == null) continue;
             mapping.put(e.key, new GlyphRegion(e.value));
         }
-        defaultValue = mapping.get(' ', mapping.get(0));
+        defaultValue = toCopy.defaultValue;
+        kerning = new IntIntMap(toCopy.kerning);
 
         // the shader is not copied, because there isn't much point in having different copies of a ShaderProgram.
         if(toCopy.shader != null)
@@ -501,8 +502,8 @@ public class Font implements Disposable {
     /**
      * Constructs a new Font by reading in a .fnt file with the given name (an internal handle is tried first, then a
      * classpath handle) and loading any images specified in that file. The specified distance field effect is used.
-     * @param fntName
-     * @param distanceField
+     * @param fntName the path and filename of a .fnt file this will load; may be internal or classpath
+     * @param distanceField determines how edges are drawn; if unsure, you should use {@link DistanceFieldType#STANDARD}
      * @param xAdjust how many pixels to offset each character's x-position by, moving to the right
      * @param yAdjust how many pixels to offset each character's y-position by, moving up
      * @param widthAdjust how many pixels to add to the used width of each character, using more to the right
@@ -527,8 +528,8 @@ public class Font implements Disposable {
     /**
      * Constructs a new Font by reading in a Texture from the given named path (internal is tried, then classpath),
      * and no distance field effect.
-     * @param fntName
-     * @param textureName
+     * @param fntName the path and filename of a .fnt file this will load; may be internal or classpath
+     * @param textureName the path and filename of a texture file this will load; may be internal or classpath
      * @param xAdjust how many pixels to offset each character's x-position by, moving to the right
      * @param yAdjust how many pixels to offset each character's y-position by, moving up
      * @param widthAdjust how many pixels to add to the used width of each character, using more to the right
@@ -542,9 +543,9 @@ public class Font implements Disposable {
     /**
      * Constructs a new Font by reading in a Texture from the given named path (internal is tried, then classpath),
      * and the specified distance field effect.
-     * @param fntName
-     * @param textureName
-     * @param distanceField
+     * @param fntName the path and filename of a .fnt file this will load; may be internal or classpath
+     * @param textureName the path and filename of a texture file this will load; may be internal or classpath
+     * @param distanceField determines how edges are drawn; if unsure, you should use {@link DistanceFieldType#STANDARD}
      * @param xAdjust how many pixels to offset each character's x-position by, moving to the right
      * @param yAdjust how many pixels to offset each character's y-position by, moving up
      * @param widthAdjust how many pixels to add to the used width of each character, using more to the right
@@ -578,8 +579,8 @@ public class Font implements Disposable {
 
     /**
      * Constructs a font using the given TextureRegion that holds all of its glyphs, with no distance field effect.
-     * @param fntName
-     * @param textureRegion
+     * @param fntName the path and filename of a .fnt file this will load; may be internal or classpath
+     * @param textureRegion an existing TextureRegion, typically inside a larger TextureAtlas
      * @param xAdjust how many pixels to offset each character's x-position by, moving to the right
      * @param yAdjust how many pixels to offset each character's y-position by, moving up
      * @param widthAdjust how many pixels to add to the used width of each character, using more to the right
@@ -593,9 +594,9 @@ public class Font implements Disposable {
     /**
      * Constructs a font using the given TextureRegion that holds all of its glyphs, with the specified distance field
      * effect.
-     * @param fntName
-     * @param textureRegion
-     * @param distanceField
+     * @param fntName the path and filename of a .fnt file this will load; may be internal or classpath
+     * @param textureRegion an existing TextureRegion, typically inside a larger TextureAtlas
+     * @param distanceField determines how edges are drawn; if unsure, you should use {@link DistanceFieldType#STANDARD}
      * @param xAdjust how many pixels to offset each character's x-position by, moving to the right
      * @param yAdjust how many pixels to offset each character's y-position by, moving up
      * @param widthAdjust how many pixels to add to the used width of each character, using more to the right
@@ -623,8 +624,8 @@ public class Font implements Disposable {
 
     /**
      * Constructs a Font using the given TextureRegion Array, with no distance field effect.
-     * @param fntName
-     * @param textureRegions
+     * @param fntName the path and filename of a .fnt file this will load; may be internal or classpath
+     * @param textureRegions an Array of TextureRegions that will be used in order as the .fnt file uses more pages
      * @param xAdjust how many pixels to offset each character's x-position by, moving to the right
      * @param yAdjust how many pixels to offset each character's y-position by, moving up
      * @param widthAdjust how many pixels to add to the used width of each character, using more to the right
@@ -636,9 +637,9 @@ public class Font implements Disposable {
     }
     /**
      * Constructs a Font using the given TextureRegion Array and specified distance field effect.
-     * @param fntName
-     * @param textureRegions
-     * @param distanceField
+     * @param fntName the path and filename of a .fnt file this will load; may be internal or classpath
+     * @param textureRegions an Array of TextureRegions that will be used in order as the .fnt file uses more pages
+     * @param distanceField determines how edges are drawn; if unsure, you should use {@link DistanceFieldType#STANDARD}
      * @param xAdjust how many pixels to offset each character's x-position by, moving to the right
      * @param yAdjust how many pixels to offset each character's y-position by, moving up
      * @param widthAdjust how many pixels to add to the used width of each character, using more to the right
@@ -670,7 +671,7 @@ public class Font implements Disposable {
     /**
      * Constructs a new Font from the existing BitmapFont, using its same Textures and TextureRegions for glyphs, and
      * without a distance field effect.
-     * @param bmFont
+     * @param bmFont an existing BitmapFont that will be copied in almost every way this can
      * @param xAdjust how many pixels to offset each character's x-position by, moving to the right
      * @param yAdjust how many pixels to offset each character's y-position by, moving up
      * @param widthAdjust how many pixels to add to the used width of each character, using more to the right
@@ -683,8 +684,8 @@ public class Font implements Disposable {
     /**
      * Constructs a new Font from the existing BitmapFont, using its same Textures and TextureRegions for glyphs, and
      * with the specified distance field effect.
-     * @param bmFont
-     * @param distanceField
+     * @param bmFont an existing BitmapFont that will be copied in almost every way this can
+     * @param distanceField determines how edges are drawn; if unsure, you should use {@link DistanceFieldType#STANDARD}
      * @param xAdjust how many pixels to offset each character's x-position by, moving to the right
      * @param yAdjust how many pixels to offset each character's y-position by, moving up
      * @param widthAdjust how many pixels to add to the used width of each character, using more to the right
