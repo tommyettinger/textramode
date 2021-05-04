@@ -478,7 +478,7 @@ public class Font implements Disposable {
             mapping.put(e.key, new GlyphRegion(e.value));
         }
         defaultValue = toCopy.defaultValue;
-        kerning = new IntIntMap(toCopy.kerning);
+        kerning = toCopy.kerning == null ? null : new IntIntMap(toCopy.kerning);
 
         // the shader is not copied, because there isn't much point in having different copies of a ShaderProgram.
         if(toCopy.shader != null)
