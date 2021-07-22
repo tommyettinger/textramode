@@ -41,7 +41,7 @@ public class TextraFontTest extends ApplicationAdapter {
         batch = new SpriteBatch();
         font = new Font(new BitmapFont(Gdx.files.internal("Gentium.fnt")), Font.DistanceFieldType.STANDARD, -1f, 0f, -4.5f, 0f).scale(0.4f, 0.4f).setTextureFilter();
 ////      font = new Font("Gentium.fnt", Font.DistanceFieldType.STANDARD, -1f, 0f, -4.5f, 0f).scale(0.5f, 0.5f)
-//          .setTextureFilter(Texture.TextureFilter.MipMapLinearNearest, Texture.TextureFilter.MipMapLinearNearest);
+//          .setTextureFilter();
 //        font = new Font("LibertinusSerif.fnt",
 //                new TextureRegion(new Texture(Gdx.files.internal("LibertinusSerif.png"), true)), Font.DistanceFieldType.STANDARD, 0, 0, 0, 0)
 //        .scale(0.25f, 0.25f).setTextureFilter(Texture.TextureFilter.MipMapLinearNearest, Texture.TextureFilter.MipMapLinearNearest);
@@ -104,7 +104,7 @@ public class TextraFontTest extends ApplicationAdapter {
     public void render() {
         Gdx.gl.glClearColor(0.8f, 0.8f, 0.8f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        float x = 400, y = Gdx.graphics.getHeight() - font.cellHeight * 1.5f;//font.cellHeight * (layout.lines() - 1);
+        float x = 400, y = font.cellHeight * (layout.lines() - 1);
         batch.begin();
         font.enableShader(batch);
 

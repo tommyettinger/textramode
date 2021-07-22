@@ -1179,9 +1179,10 @@ public class Font implements Disposable {
         if (script == SUPERSCRIPT) {
             w *= 0.5f;
             h *= 0.5f;
+            yt = y + cellHeight * 0.625f - h - tr.offsetY * scaleY * 0.5f;
+            y0 += cellHeight * 0.375f;
             y1 += cellHeight * 0.375f;
             y2 += cellHeight * 0.375f;
-            y0 += cellHeight * 0.375f;
             y3 += cellHeight * 0.375f;
             if(!isMono)
                 changedW *= 0.5f;
@@ -1189,9 +1190,10 @@ public class Font implements Disposable {
         else if (script == SUBSCRIPT) {
             w *= 0.5f;
             h *= 0.5f;
+            yt = y + cellHeight * 0.625f - h - tr.offsetY * scaleY * 0.5f;
+            y0 -= cellHeight * 0.125f;
             y1 -= cellHeight * 0.125f;
             y2 -= cellHeight * 0.125f;
-            y0 -= cellHeight * 0.125f;
             y3 -= cellHeight * 0.125f;
             if(!isMono)
                 changedW *= 0.5f;
@@ -1199,6 +1201,7 @@ public class Font implements Disposable {
         else if(script == MIDSCRIPT) {
             w *= 0.5f;
             h *= 0.5f;
+            yt = y + cellHeight * 0.625f - h - tr.offsetY * scaleY * 0.5f;
             y0 += cellHeight * 0.125f;
             y1 += cellHeight * 0.125f;
             y2 += cellHeight * 0.125f;
