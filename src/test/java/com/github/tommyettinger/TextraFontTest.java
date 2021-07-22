@@ -39,7 +39,8 @@ public class TextraFontTest extends ApplicationAdapter {
     public void create() {
         Gdx.app.setLogLevel(Application.LOG_DEBUG);
         batch = new SpriteBatch();
-        font = new Font(new BitmapFont(Gdx.files.internal("Gentium.fnt")), Font.DistanceFieldType.STANDARD, -1f, 0f, -4.5f, 0f).scale(0.4f, 0.4f).setTextureFilter();
+        font = new Font(new BitmapFont(Gdx.files.internal("Gentium.fnt")), Font.DistanceFieldType.STANDARD, -1f, 0f, -4.5f, 0f)
+                .scale(0.42f, 0.42f).setTextureFilter();
 ////      font = new Font("Gentium.fnt", Font.DistanceFieldType.STANDARD, -1f, 0f, -4.5f, 0f).scale(0.5f, 0.5f)
 //          .setTextureFilter();
 //        font = new Font("LibertinusSerif.fnt",
