@@ -21,12 +21,12 @@ public class TextraFontTest extends ApplicationAdapter {
 
     Font font;
     SpriteBatch batch;
-    Layout layout = new Layout().setTargetWidth(550);
+    Layout layout = new Layout().setTargetWidth(750);
 
     public static void main(String[] args){
         Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
         config.setTitle("textramode Font test");
-        config.setWindowedMode(800, 640);
+        config.setWindowedMode(800, 540);
         config.disableAudio(true);
         ShaderProgram.prependVertexCode = "#version 150\n";
         ShaderProgram.prependFragmentCode = "#version 150\n";
@@ -39,22 +39,17 @@ public class TextraFontTest extends ApplicationAdapter {
     public void create() {
         Gdx.app.setLogLevel(Application.LOG_DEBUG);
         batch = new SpriteBatch();
-        font = new Font(new BitmapFont(Gdx.files.internal("Gentium.fnt")), Font.DistanceFieldType.STANDARD, -1f, 0f, -4.5f, 0f).scale(0.5f, 0.5f);
-////        font = new Font("Gentium.fnt", Font.DistanceFieldType.STANDARD, -1f, 0f, -4.5f, 0f).scale(0.5f, 0.5f);
-        font.setTextureFilter();
-//        for(TextureRegion parent : font.parents){
-//            parent.getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-//        }
+        font = new Font(new BitmapFont(Gdx.files.internal("Gentium.fnt")), Font.DistanceFieldType.STANDARD, -1f, 0f, -4.5f, 0f).scale(0.4f, 0.4f).setTextureFilter();
+////      font = new Font("Gentium.fnt", Font.DistanceFieldType.STANDARD, -1f, 0f, -4.5f, 0f).scale(0.5f, 0.5f)
+//          .setTextureFilter(Texture.TextureFilter.MipMapLinearNearest, Texture.TextureFilter.MipMapLinearNearest);
 //        font = new Font("LibertinusSerif.fnt",
 //                new TextureRegion(new Texture(Gdx.files.internal("LibertinusSerif.png"), true)), Font.DistanceFieldType.STANDARD, 0, 0, 0, 0)
-//        .scale(0.25f, 0.25f);
-//        for(TextureRegion parent : font.parents){
-//            parent.getTexture().setFilter(Texture.TextureFilter.MipMapLinearNearest, Texture.TextureFilter.MipMapLinearNearest);
-//        }
+//        .scale(0.25f, 0.25f).setTextureFilter(Texture.TextureFilter.MipMapLinearNearest, Texture.TextureFilter.MipMapLinearNearest);
+
 //        font = new Font("Cozette.fnt", "Cozette.png", Font.DistanceFieldType.STANDARD, 2, 2, 0, 0).scale(2f, 2f);
 //        font = new Font("AStarry.fnt", Font.DistanceFieldType.STANDARD, 1, 1, -1, -1);//.scale(2f, 2f);
 //        font = new Font("Iosevka-Slab-msdf.fnt", "Iosevka-Slab-msdf.png", Font.DistanceFieldType.MSDF, 3f, 6f, -4f, -7).scale(0.75f, 0.75f);
-//        font = new Font("LibertinusSerif-Regular-msdf.fnt", "LibertinusSerif-Regular-msdf.png", Font.DistanceFieldType.MSDF, 6f, 1f, -1f, -1f).scale(1.5f, 1.5f);
+//        font = new Font("LibertinusSerif-Regular-msdf.fnt", "LibertinusSerif-Regular-msdf.png", Font.DistanceFieldType.MSDF, 6f, 1f, -1f, -1f);
 //        font = new Font("Inconsolata-LGC-Custom-msdf.fnt", "Inconsolata-LGC-Custom-msdf.png", Font.DistanceFieldType.MSDF, 5f, 1f, -10f, -8f).scaleTo(16f, 28f);
 //        font = new Font("Iosevka-distance.fnt", "Iosevka-distance.png", Font.DistanceFieldType.SDF, 0, 0, 0, 0).scaleTo(7f, 19f);
 
@@ -64,18 +59,29 @@ public class TextraFontTest extends ApplicationAdapter {
 //        TextureAtlas atlas = new TextureAtlas(Gdx.files.internal("dawnlike/Dawnlike.atlas"), Gdx.files.internal("dawnlike"));
 //        font = new Font(new BitmapFont(Gdx.files.internal("dawnlike/PlainAndSimplePlus.fnt"), atlas.findRegion("PlainAndSimplePlus")), Font.DistanceFieldType.STANDARD, 0, 0, 2, 2);
 
-        layout.setBaseColor(Color.SLATE);
-        layout.setMaxLines(7);
+        layout.setBaseColor(Color.DARK_GRAY);
+        layout.setMaxLines(10);
         layout.setEllipsis("...");
-        font.markup("I wanna thank you all for coming here tonight..."
-                + "\n[#22BB22FF]Hello, [~]World[~]Universe[.]$[=]$[^]$[^]!"
-                + "\nThe [RED]MAW[] of the [/][CYAN]wendigo[/] (wendigo)[] [*]appears[*]!"
-                + "\nThe [_][GRAY]BLADE[] of [*][/][YELLOW]DYNAST-KINGS[] strikes!"
-                + "\n[_][;]Each cap, [,]All lower, [!]Caps lock[], [?]Unknown[]?"
-                + "\n[GOLD]phi[] = (1 + 5[^]0.5[^]) * 0.5"
-                + "\n[ORANGE][*]Mister Bond[*]! This is my right-hand man, Nosejob."
-                + "\nPchnąć[] w tę łódź [TAN]jeża[] lub ośm skrzyń [PURPLE]fig[]."
+        font.markup("Fonts can be rendered normally, but using [[tags], you can..."
+                + "\n[#E74200]...use CSS-style hex colors like #E74200..."
+                + "\n[FOREST]...use named colors from the Colors class, like FOREST...[]"
+                + "\n...and use [!]effects[!]!"
+                + "\nNormal, [*]bold[*], [/]oblique[/] (like italic), [*][/]bold oblique[],"
+                + "\n[_]underline (even for multiple words)[_], [~]strikethrough (same)[],"
+                + "\nvarious heights: [.]sub-[.], [=]mid-[=], and [^]super-[^]script,"
+                + "\ncapitalization changes: [;]Each cap, [,]All lower, [!]Caps lock[],"
+                + "\nUnicode support: Pchnąć w tę łódź [BROWN]jeża[] lub ośm skrzyń [PURPLE]fig[]."
+                + "\nВоплощение стихии воды как отрицательного[^][BLUE][[3][]..."
                 , layout);
+//        font.markup("I wanna thank you all for coming here tonight..."
+//                + "\n[#22BB22FF]Hello, [~]World[~]Universe[.]$[=]$[^]$[^]!"
+//                + "\nThe [RED]MAW[] of the [/][CYAN]wendigo[/] (wendigo)[] [*]appears[*]!"
+//                + "\nThe [_][GRAY]BLADE[] of [*][/][YELLOW]DYNAST-KINGS[] strikes!"
+//                + "\n[_][;]Each cap, [,]All lower, [!]Caps lock[], [?]Unknown[]?"
+//                + "\n[GOLD]phi[] = (1 + 5[^]0.5[^]) * 0.5"
+//                + "\n[ORANGE][*]Mister Bond[*]! This is my right-hand man, Nosejob."
+//                + "\nPchnąć[] w tę łódź [TAN]jeża[] lub ośm skrzyń [PURPLE]fig[]."
+//                , layout);
 //        layout.clear();
 //        font.markup("Good day to you all, sirs and madams!"
 //                + "\n[*]Водяно́й[] — в славянской мифологии дух, обитающий в воде, хозяин вод[^][BLUE][[2][]."
@@ -96,13 +102,13 @@ public class TextraFontTest extends ApplicationAdapter {
 
     @Override
     public void render() {
-        Gdx.gl.glClearColor(0.24f, 0.33f, 0.2f, 1);
+        Gdx.gl.glClearColor(0.8f, 0.8f, 0.8f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        float x = 800, y = font.cellHeight * (layout.lines() - 1);
+        float x = 400, y = Gdx.graphics.getHeight() - font.cellHeight * 1.5f;//font.cellHeight * (layout.lines() - 1);
         batch.begin();
         font.enableShader(batch);
 
-        font.drawGlyphs(batch, layout, x, y, Align.right);
+        font.drawGlyphs(batch, layout, x, y, Align.center);
 //        batch.draw(font.parents.first(), 0, 0);
         batch.end();
         Gdx.graphics.setTitle(Gdx.graphics.getFramesPerSecond() + " FPS");
