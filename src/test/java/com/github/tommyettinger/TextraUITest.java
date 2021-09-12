@@ -230,7 +230,7 @@ public class TextraUITest extends InputAdapter implements ApplicationListener {
 	public static void main(String[] args){
 		Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
 		config.setTitle("textramode UI test");
-		config.setWindowedMode(800, 640);
+		config.setWindowedMode(640, 480);
 		config.disableAudio(true);
 		ShaderProgram.prependVertexCode = "#version 150\n";
 		ShaderProgram.prependFragmentCode = "#version 150\n";

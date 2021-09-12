@@ -12,7 +12,7 @@ import com.badlogic.gdx.utils.Pools;
 public class TextraLabel extends Widget {
     public Layout layout;
     public Font font;
-    public int align = Align.center;
+    public int align = Align.bottomLeft;
     public TextraLabel(){
         layout = Pools.obtain(Layout.class);
         font = new Font(new BitmapFont(), Font.DistanceFieldType.STANDARD, 0, 0, 0, 0);
