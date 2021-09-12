@@ -40,7 +40,9 @@ an existing libGDX `BitmapFont` to copy as a basis. You can specify the
 constructors; the default is `STANDARD` for a normal bitmap font, and you
 can also use `SDF` or `MSDF` if you have an appropriate font (you can use
 some predefined ones from [the Glamer repo](https://github.com/tommyettinger/Glamer/tree/master/premade)
-as a starting point). Frequently, because of the imprecise nature of bitmap
+as a starting point). There are also several pre-made fonts in the [test
+resources here](https://github.com/tommyettinger/textramode/tree/main/src/test/resources).
+Frequently, because of the imprecise nature of bitmap
 fonts, you may need to adjust the x, y, width, and height modifiers of the
 font to account for padding. As an example, if you use Gentium.fnt from
 this repo, then it works well with `-1f, 0f, -4.5f, 0f` for those four
@@ -52,6 +54,39 @@ call `myFont.markup("Some string with [/]markup[/]!", myLayout);`, which will
 fill up `myLayout` with the needed info to draw the mix of normal and oblique
 text in `myFont`. `myFont.drawGlyphs(myBatch, myLayout, x, y);` is usually all
 that's needed in `render()` to draw that Layout.
+
+## What about that markup?
+
+The style effects you can apply to text are probably the main feature for this
+library right now, and they can all be enabled by markup. The markup uses the
+same basic syntax as color markup in libGDX, but it doesn't interact at all
+with the (somewhat-unreliable) color markup code in libGDX. Markup starts and
+ends with square brackets, with the first character inside the square brackets
+having special meaning if it is not a letter. You can use `[[` to escape a left
+bracket, there's no need to escape right brackets, and `[]` has the special
+meaning of resetting all color, style, and case formatting. Beyond these, there
+are quite a few kinds:
+
+  - `[*]` toggles bold mode.
+  - `[/]` toggles oblique mode (like italics).
+  - `[^]` toggles superscript mode (and turns off subscript or midscript mode).
+  - `[=]` toggles midscript mode (and turns off superscript or subscript mode).
+  - `[.]` toggles subscript mode (and turns off superscript or midscript mode).
+  - `[_]` toggles underline mode.
+  - `[~]` toggles strikethrough mode.
+  - `[!]` toggles all upper case mode (replacing any other case mode).
+  - `[,]` toggles all lower case mode (replacing any other case mode).
+  - `[;]` toggles capitalize each word mode (replacing any other case mode).
+  - `[#HHHHHHHH]`, where HHHHHHHH is a hex RGB888 or RGBA8888 int color, changes the color. 
+  - `[COLORNAME]`, where COLORNAME is a typically-upper-case color name that will be looked up in libGDX's `Colors` class, changes the color.
+
+Most of these modes are compatible with each other. The exceptions are the
+super/sub/mid-script modes, where only one of those three can be enabled at
+a time, and the case modes, where only one of those three can be enabled at
+a time. You can have bold+oblique+underline+strikethrough+subscript+capitalize
+modes all enabled at once, in addition to a color. Note that almost all of
+these toggle a mode, so if you start bold mode with `[*]`, you can turn it off
+with the next `[*]`. You can also turn off all modes with `[]`.
 
 ## How do I get it?
 
