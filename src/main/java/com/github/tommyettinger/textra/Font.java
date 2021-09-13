@@ -996,9 +996,10 @@ public class Font implements Disposable {
      *     <li>{@code [!]} toggles all upper case mode.</li>
      *     <li>{@code [,]} toggles all lower case mode.</li>
      *     <li>{@code [;]} toggles capitalize each word mode.</li>
-     *     <li>{@code [#HHHHHHHH]}, where HHHHHHHH is an RGBA8888 int color with optional alpha, changes the color.</li>
+     *     <li>{@code [#HHHHHHHH]}, where HHHHHHHH is a hex RGB888 or RGBA8888 int color, changes the color.</li>
      *     <li>{@code [COLORNAME]}, where "COLORNAME" is a typically-upper-case color name that will be looked up in
-     *     {@link Colors}, changes the color.</li>
+     *     {@link Colors}, changes the color. The name can optionally be preceded by {@code |}, which allows looking up
+     *     colors with names that contain punctuation.</li>
      * </ul>
      * <br>
      * Parsing markup for a full screen every frame typically isn't necessary, and you may want to store the most recent
@@ -1567,7 +1568,8 @@ public class Font implements Disposable {
      *     <li>{@code [;]} toggles capitalize each word mode.</li>
      *     <li>{@code [#HHHHHHHH]}, where HHHHHHHH is a hex RGB888 or RGBA8888 int color, changes the color.</li>
      *     <li>{@code [COLORNAME]}, where "COLORNAME" is a typically-upper-case color name that will be looked up in
-     *     {@link Colors}, changes the color.</li>
+     *     {@link Colors}, changes the color. The name can optionally be preceded by {@code |}, which allows looking up
+     *     colors with names that contain punctuation.</li>
      * </ul>
      * You can render {@code appendTo} using {@link #drawGlyphs(Batch, Layout, float, float)}.
      * @param text text with markup
@@ -1655,6 +1657,13 @@ public class Font implements Disposable {
                                 color = longFromHex(text, i + 1, i + 9) << 32;
                             else
                                 color = baseColor;
+                            current = (current & ~COLOR_MASK) | color;
+                            break;
+                        case '|':
+                            // attempt to look up a known Color name from Colors
+                            Color lookupColor = Colors.get(text.substring(i + 1, i + len));
+                            if (lookupColor == null) color = baseColor;
+                            else color = (long) Color.rgba8888(lookupColor) << 32;
                             current = (current & ~COLOR_MASK) | color;
                             break;
                         default:

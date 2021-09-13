@@ -79,6 +79,8 @@ are quite a few kinds:
   - `[;]` toggles capitalize each word mode (replacing any other case mode).
   - `[#HHHHHHHH]`, where HHHHHHHH is a hex RGB888 or RGBA8888 int color, changes the color. 
   - `[COLORNAME]`, where COLORNAME is a typically-upper-case color name that will be looked up in libGDX's `Colors` class, changes the color.
+    - The name can optionally be preceded by `|`, which allows looking up colors with names that contain punctuation.
+      For example, `[|;_;]` would look up a color called `;_;`, and would not act like `[;]`. 
 
 Most of these modes are compatible with each other. The exceptions are the
 super/sub/mid-script modes, where only one of those three can be enabled at
