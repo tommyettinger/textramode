@@ -1,10 +1,17 @@
 package com.github.tommyettinger.textra;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.Pools;
 
+/**
+ * A replacement for libGDX's GlyphLayout, more or less; stores one or more (possibly empty) {@link Line}s of text,
+ * which can use color and style markup from {@link Font}, and can be drawn with
+ * {@link Font#drawGlyphs(Batch, Layout, float, float, int)}. This is a Poolable class, and you can obtain a Layout with
+ * {@code Pools.obtain(Layout.class)} followed by setting the font, or just using a constructor.
+ */
 public class Layout implements Pool.Poolable {
 
     private static final Pool<Layout> pool = new Pool<Layout>() {
@@ -34,6 +41,11 @@ public class Layout implements Pool.Poolable {
         lines.add(Pools.obtain(Line.class));
     }
 
+    /**
+     * One of the ways to set the font on a Layout; this one returns this Layout for chaining.
+     * @param font the font to use
+     * @return this Layout, for chaining
+     */
     public Layout font(Font font) {
         if(this.font == null || !this.font.equals(font))
         {
@@ -45,6 +57,23 @@ public class Layout implements Pool.Poolable {
         return this;
     }
 
+    public Font getFont() {
+        return font;
+    }
+
+    /**
+     * One of the ways to set the font on a Layout; this is a traditional setter.
+     * @param font the font to use
+     */
+    public void setFont(Font font) {
+        this.font(font);
+    }
+
+    /**
+     * Adds a {@code long} glyph as processed by {@link Font} to store color and style info with the char.
+     * @param glyph usually produced by {@link Font} to store color and style info with the char
+     * @return this Layout, for chaining
+     */
     public Layout add(long glyph){
         if((glyph & 0xFFFFL) == 10L)
         {
@@ -83,6 +112,11 @@ public class Layout implements Pool.Poolable {
         return lines.size;
     }
 
+    /**
+     * Gets a Line from this by its index.
+     * @param i index for the Line to fetch; must be at least 0 and less than {@link #lines()}.
+     * @return the Line at the given index
+     */
     public Line getLine(int i) {
         return lines.get(i);
     }
@@ -198,6 +232,11 @@ public class Layout implements Pool.Poolable {
         lines.add(Pools.obtain(Line.class));
     }
 
+    /**
+     * Primarily used by {@link #toString()}, but can be useful if you want to append many Layouts into a StringBuilder.
+     * @param sb a non-null StringBuilder from the JDK
+     * @return sb, for chaining
+     */
     public StringBuilder appendInto(StringBuilder sb){
         for (int i = 0, n = lines.size; i < n;) {
             Line line = lines.get(i);

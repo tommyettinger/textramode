@@ -16,6 +16,26 @@ import com.badlogic.gdx.utils.*;
 import java.util.Arrays;
 import java.util.BitSet;
 
+/**
+ * A replacement for libGDX's BitmapFont class, supporting additional markup to allow styling text with various effects.
+ * This includes a "faux bold" and oblique mode using one font image; you don't need a bold and italic/oblique image
+ * separate from the book face.
+ * <br>
+ * A Font represents either one size of a "standard" bitmap font (which can be drawn scaled up or down), or many sizes
+ * of a distance field font (using either the commonly-used SDF format or newer MSDF format). The same class is used for
+ * standard, SDF, and MSDF fonts, but you call {@link #enableShader(Batch)} before rendering with SDF or MSDF fonts, and
+ * can switch back to a normal SpriteBatch shader with {@code batch.setShader(null);}. You don't have to use SDF or MSDF
+ * fonts, but they scale more cleanly. You can generate SDF fonts with
+ * Hiero or [a related
+ * tool](https://github.com/libgdx/libgdx/wiki/Distance-field-fonts#using-distance-fields-for-arbitrary-images) that is
+ * part of libGDX; MSDF fonts are harder to generate, but possible using a tool like
+ * <a href="https://github.com/tommyettinger/Glamer">Glamer</a>.
+ * <br>
+ * This interacts with the {@link Layout} class, with a Layout referencing a Font, and various methods in Font taking
+ * a Layout. You usually want to have a Layout for any text you draw repeatedly, and draw that Layout each frame with
+ * {@link #drawGlyphs(Batch, Layout, float, float, int)} or a similar method.
+ * @see #markup(String, Layout) The markup() method's documentation covers all the markup tags.
+ */
 public class Font implements Disposable {
 
     /**
@@ -814,7 +834,6 @@ public class Font implements Disposable {
             int a = intFromDec(fnt, idx, idx = indexAfter(fnt, " page=", idx));
             int p = intFromDec(fnt, idx, idx = indexAfter(fnt, "\nchar id=", idx));
 
-//            System.out.printf("'%s' (%5d): width=%d height=%d xoffset=%d yoffset=%d xadvance=%d\n", (char)c, c, w, h, xo, yo, a);
             x += xAdjust;
             y += yAdjust;
             a += widthAdjust;
@@ -855,6 +874,8 @@ public class Font implements Disposable {
 
     /**
      * Assembles two chars into a kerning pair that can be looked up as a key in {@link #kerning}.
+     * If you give such a pair to {@code kerning}'s {@link IntIntMap#get(int, int)} method, you'll get the amount of
+     * extra space (in the same unit the font uses) this will insert between {@code first} and {@code second}.
      * @param first the first char
      * @param second the second char
      * @return a kerning pair that can be looked up in {@link #kerning}
@@ -878,7 +899,7 @@ public class Font implements Disposable {
     }
 
     /**
-     * Scales the font so it will have the given width and height.
+     * Scales the font so that it will have the given width and height.
      * @param width the target width of the font, in world units
      * @param height the target height of the font, in world units
      * @return this Font, for chaining
@@ -926,10 +947,10 @@ public class Font implements Disposable {
     }
 
     /**
-     * Must be called before drawing anything with an MSDF font; does not need to be called for other fonts unless you
-     * are mixing them with MSDF fonts or other shaders. This also resets the Batch color to white, in case it had been
-     * left with a different setting before. If this Font is not an MSDF font, then this resets batch's shader to the
-     * default (using {@code batch.setShader(null)}).
+     * Must be called before drawing anything with an SDF or MSDF font; does not need to be called for other fonts
+     * unless you are mixing them with SDF/MSDF fonts or other shaders. This also resets the Batch color to white, in
+     * case it had been left with a different setting before. If this Font is not an MSDF font, then this resets batch's
+     * shader to the default (using {@code batch.setShader(null)}).
      * @param batch the Batch to instruct to use the appropriate shader for this font; should usually be a SpriteBatch
      */
     public void enableShader(Batch batch) {
@@ -1073,7 +1094,8 @@ public class Font implements Disposable {
     }
 
     /**
-     * Draws the specified Line of glyphs with a Batch at a given x, y position, drawing the full Line.
+     * Draws the specified Line of glyphs with a Batch at a given x, y position, drawing the full Line using left
+     * alignment.
      * @param batch typically a SpriteBatch
      * @param glyphs typically returned as part of {@link #markup(String, Layout)}
      * @param x the x position in world space to start drawing the glyph at (lower left corner)

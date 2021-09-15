@@ -9,6 +9,12 @@ import com.badlogic.gdx.scenes.scene2d.ui.Widget;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Pools;
 
+/**
+ * A scene2d.ui Widget that displays text using a {@link Font} rather than a libGDX BitmapFont. This supports being
+ * laid out in a Table just like the typical Label.
+ * <br>
+ * ...Maybe not quite ready for prime-time yet. This could use some more features for ease-of-use.
+ */
 public class TextraLabel extends Widget {
     public Layout layout;
     public Font font;
@@ -81,5 +87,13 @@ public class TextraLabel extends Widget {
      */
     public void setAlignment (int alignment) {
         align = alignment;
+    }
+
+    /**
+     * Changes the text in this TextraLabel to the given String, parsing any markup in it.
+     * @param markupText a String that can contain Font markup
+     */
+    public void setText(String markupText) {
+        font.markup(markupText, layout.clear());
     }
 }
