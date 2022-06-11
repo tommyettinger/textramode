@@ -1,5 +1,14 @@
+# [⏭ **Use TextraTypist Instead!** ⏭](https://github.com/tommyettinger/textratypist)
+[TextraTypist](https://github.com/tommyettinger/textratypist) has all of the features from TextraMode and more. It is
+the continuation of the work in this library. The same author, plus contributors, wrote it and code is added to
+TextraTypist continually.
+
+The code here is simpler, but TextraTypist has generally been bug-checked more thoroughly, and it has the same four core
+classes (Font, Layout, Line, and TextraLabel) that this library has. It also provides pre-configured fonts for easier
+use, in addition to the main big feature, "can act like [typing-label](https://github.com/rafaskb/typing-label)."
+
 # textramode
-Extra features for fonts in libGDX.
+Extra features for fonts in libGDX. (ARCHIVED)
 
 ### But what kind of extra features?
 
